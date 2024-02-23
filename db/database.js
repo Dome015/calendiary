@@ -1,6 +1,5 @@
 import SQLite from "react-native-sqlite-storage";
 
-
 const openDatabase = () => {
     return SQLite.openDatabase({ name: "calendario.db", location: "default" },
         () => console.log("Database successfully open"),
@@ -44,7 +43,20 @@ export const insertEvent = async (event) => {
                 `INSERT INTO Event (description, date, notification)
                 VALUES (?, ?, ?);`,
                 [event.description, event.date, event.notification],
-                (tx, res) => resolve(),
+                (tx, res) => resolve(res.insertId),
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
+
+export const deleteEventById = async (id) => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `DELETE FROM Event WHERE id = ?`,
+                [id],
+                (tx, res) => resolve(res.rowsAffected),
                 (tx, err) => reject(err)
             );
         });
@@ -60,10 +72,16 @@ export const getEventsByDate = async (date) => {
     return new Promise((resolve, reject) => {
         db.transaction((tx) => {
             tx.executeSql(
-                `SELECT * FROM Event WHERE date = ?;`,
+                'SELECT * FROM Event where DATE(date) = DATE(?)',
                 [date],
-                (tx, res) => resolve(res.rows.raw()),
-                (tx, err) => reject(err.message)
+                (tx, res) => {
+                    const result = [];
+                    for (let i = 0; i < res.rows.length; i++) {
+                        result.push(res.rows.item(i));
+                    }
+                    resolve(result);
+                },
+                (tx, err) => reject(err)
             );
         });
     });

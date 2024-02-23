@@ -1,29 +1,13 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet, Pressable, Modal } from "react-native";
 import { isRed, getDayOfWeekName, getHolidays, isToday, getFormattedDate, getDateString } from "../common";
-import { PureComponent, useContext } from "react";
-
+import { PureComponent, useEffect, useState } from "react";
+import { useFocusEffect } from "@react-navigation/native";
+import React from "react";
 import EmptyEntry from "./EmptyEntry";
-import PageContext from "../context/PageContext";
 import * as db from "../db/database";
 import EventEntry from "./EventEntry";
 
 class CalendarEntry extends PureComponent {
-
-    constructor(props) {
-        super(props);
-        this.state = {
-            eventList: []
-        };
-    }
-
-    componentDidMount() {
-        // Fetch events for date
-        const fetchEvents = async () => {
-            const list = await db.getEventsByDate(getDateString(this.props.date));
-            this.setState({ eventList : list });
-        }
-        fetchEvents();
-    }
 
     render() {
         const { date } = this.props;
@@ -40,25 +24,81 @@ class CalendarEntry extends PureComponent {
                     </View>
                 </View>
                 <View style={[styles.bodyView, isToday(date) ? styles.bodyViewToday : {}]}>
-                    { this.state.eventList.length === 0 && <EmptyEntry /> }
-                    { this.state.eventList.map(event => <EventEntry event={event} />) }
-                    <AddEventButton date={date} />
+                    <EventList navigation={this.props.navigation} date={date}/>
+                    <AddEventButton date={date} navigation={this.props.navigation} />
                 </View>
             </View>
         );
     }
 }
 
-function AddEventButton({ date }) {
-    const pageContext = useContext(PageContext);
+function EventList({ navigation, date }) {
+    const [eventList, setEventList] = useState([]);
+    const [eventToDelete, setEventToDelete] = useState(null);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    
+    useFocusEffect(React.useCallback(() => {
+        const fetchEvents = async () => {
+            try {
+                const list = await db.getEventsByDate(date.toISOString());
+                setEventList(list);
+            } catch (e) {
+                console.log(e);
+            }
+        }
+        fetchEvents();
+    }, [date]));
 
+    const onDelete = (event) => {
+        setEventToDelete(event);
+        setShowDeleteModal(true);
+    }
+
+    const onDeleteConfirm = async () => {
+        try {
+            await db.deleteEventById(eventToDelete.id);
+            setEventList(oldEventList => {
+                let eventList = [...oldEventList];
+                eventList = eventList.filter(e => e.id !== eventToDelete.id);
+                return eventList;
+            });
+            setShowDeleteModal(false);
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    return ( 
+        <>
+            { eventList.length === 0 && <EmptyEntry /> }
+            { eventList.map(event => <EventEntry key={event.id} event={event} navigation={navigation} onDelete={onDelete}/>) }
+            <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} eventToDelete={eventToDelete} onDeleteConfirm={onDeleteConfirm} />
+        </>);
+}
+
+function AddEventButton({ navigation, date }) {
     return (
-        <Pressable style={styles.addButtonPressable} onPress={() => pageContext.setPage("addEvent")}>
+        <Pressable style={styles.addButtonPressable} onPress={() => navigation.navigate("AddEvent", { date: date.toISOString() })}>
             <Text style={styles.addButtonText}>
-              
+                +
             </Text>
         </Pressable>
     );
+}
+
+function DeleteModal({ showDeleteModal, setShowDeleteModal, eventToDelete, onDeleteConfirm }) {
+    if (!eventToDelete)
+        return null;
+
+    return (
+        <Modal
+            visible={showDeleteModal}
+        >
+            <Text>Are you sure you want to delete the event: {eventToDelete.description}?</Text>
+            <Pressable onPress={onDeleteConfirm}><Text>Yes</Text></Pressable>
+            <Pressable onPress={() => setShowDeleteModal(false)}><Text>No</Text></Pressable>
+        </Modal>
+    )
 }
 
 const styles = StyleSheet.create({

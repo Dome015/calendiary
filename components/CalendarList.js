@@ -1,10 +1,9 @@
 import { useEffect, useState } from "react";
 import { FlatList, Text } from "react-native";
-import dayjs from "dayjs";
 import CalendarEntry from "./CalendarEntry";
 import Loading from "./Loading";
 
-function CalendarList({ show }) {
+function CalendarList({ navigation }) {
     const [dates, setDates] = useState([]);
     const [loading, setLoading] = useState(true);
     const initialNumberOfDates = 7;
@@ -40,7 +39,7 @@ function CalendarList({ show }) {
         { !loading &&
         <FlatList 
             data={dates}
-            renderItem={element => <CalendarEntry key={element.index} date={element.item} />}
+            renderItem={element => <CalendarEntry key={element.index} date={element.item} navigation={navigation} />}
             onEndReachedThreshold={2}
             onEndReached={addNextDates}
             showsVerticalScrollIndicator={false}

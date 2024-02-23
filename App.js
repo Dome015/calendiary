@@ -1,48 +1,14 @@
-import { StyleSheet, View, StatusBar } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import * as db from './db/database';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import CalendarList from './components/CalendarList';
-import PageContext from './context/PageContext';
 import AddEventForm from './components/AddEventForm';
-import { BackHandler } from 'react-native';
-import { getDateString } from './common';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+const Stack = createNativeStackNavigator();
 
 export default function App() {
-
-  const [page, setPage] = useState("home");
-  const [addEventDate, setAddEventDate] = useState(getDateString(new Date()));
-
-  const routes = {
-    "home": {
-      backPage: "home",
-      contentCallback: () => <CalendarList />,
-      backCallback: () => BackHandler.exitApp()
-    },
-    "addEvent": {
-      backPage: "home",
-      contentCallback: () => <AddEventForm initialDate={addEventDate} />,
-      backCallback: () => setPage("home")
-    },
-  };
-
-  const getContent = () => {
-    switch (page) {
-      case "addEvent":
-        return <AddEventForm initialDate={addEventDate} />
-      case "home":
-      default:
-        return <CalendarList />;
-    }
-  }
-
-  useEffect(() => {
-    const backHandler = () => {
-      routes[page].backCallback();
-      return true;
-    }
-    const backHandlerEventListener = BackHandler.addEventListener("hardwareBackPress", backHandler);
-    return () => backHandlerEventListener.remove();
-  }, [page]);
 
   const onStartup = async () => {
     await db.initDatabase();
@@ -53,12 +19,25 @@ export default function App() {
   }, []);
 
   return (
-    <PageContext.Provider value={{ setPage: (p) => { setPage(p); console.log("Navigating to " + p); } }}>
-      <View style={styles.container}>
-        <View style={styles.contentView}>{getContent()}</View>
-        <View style={[styles.footerView, styles.elevation]}></View>
+    <View style={styles.container}>
+      <View style={styles.contentView}>
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }}>
+          <Stack.Screen
+            name="Home"
+            component={CalendarList}
+            options={{ date: new Date() }}
+          />
+          <Stack.Screen
+            name="AddEvent"
+            component={AddEventForm}
+            options={{ date: new Date() }}
+          />
+        </Stack.Navigator>
+      </NavigationContainer>  
       </View>
-    </PageContext.Provider>
+      <View style={[styles.footerView, styles.elevation]}></View>
+    </View>
   );
 }
 

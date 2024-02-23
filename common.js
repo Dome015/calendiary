@@ -35,7 +35,11 @@ export const getDayOfWeekName = date => dayStr[date.getDay()];
  * @param {Date} date 
  * @returns {string}
  */
-export const getFormattedDate = date => getMonthName(date) + " " + getDay(date) + ", " + getYear(date);
+export const getFormattedDate = date => date.toLocaleDateString("en-UK", { year: "numeric", month: "short", day: "numeric"});
+
+export const getFormattedTime = date => date.toLocaleTimeString("en-UK", { hour: '2-digit', minute: '2-digit', hour12: true });
+
+export const getFormattedDateTime = date => `${getFormattedDate(date)} ${date.toLocaleTimeString("en-UK", { hour: '2-digit', minute: '2-digit', hour12: true })}`;
 
 /**
  * Returns a string for the date in the format "YYYY-MM-DD".
