@@ -3,13 +3,15 @@ import { FlatList } from "react-native";
 import CalendarEntry from "./CalendarEntry";
 import Loading from "./Loading";
 import CalendarDateContext from "../contexts/CalendarDateContext";
+import AddEventModal from "./AddEventModal";
 
 function CalendarList() {
     const [dates, setDates] = useState([]);
     const [loading, setLoading] = useState(true);
     const [dirty, setDirty] = useState(false);
 
-    
+    const [addModalDate, setAddModalDate] = useState(new Date());
+    const [showAddModal, setShowAddModal] = useState(false);
 
     const initialNumberOfDates = 7;
     const addedNumberOfDates = 5;
@@ -61,13 +63,15 @@ function CalendarList() {
         setDates(dates => dates.concat(newDates));
     };
 
+    const updateEvents = () => setDirty(true);
+
     return (
         <>
 
         { !loading &&
         <FlatList 
             data={dates}
-            renderItem={element => <CalendarEntry key={element.index} date={element.item} setDirty={setDirty} />}
+            renderItem={element => <CalendarEntry key={element.index} date={element.item} setAddModalDate={setAddModalDate} setShowAddModal={setShowAddModal} />}
             onEndReachedThreshold={2}
             onEndReached={addNextDates}
             showsVerticalScrollIndicator={false}
@@ -77,6 +81,7 @@ function CalendarList() {
         { loading &&
             <Loading />
         }
+        <AddEventModal inDate={addModalDate} show={showAddModal} setShow={setShowAddModal} onAdd={updateEvents} />
         </>
     );
 }

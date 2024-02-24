@@ -5,13 +5,10 @@ import { getEventsByDate, deleteEventById } from "../db/database";
 import AddEventButton from "./AddEventButton";
 import { unscheduleEventNotification } from "../common";
 import Loading from "./Loading";
-import AddEventModal from "./AddEventModal";
 
-
-function EventList({ date, setDirty }) {
+function EventList({ date, setAddModalDate, setShowAddModal }) {
     const [eventList, setEventList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
-    const [showModal, setShowModal] = useState(false);
     
     useEffect(() => {
         const fetchEvents = async () => {
@@ -43,9 +40,9 @@ function EventList({ date, setDirty }) {
         }
     }
 
-    const onAdd = () => {
-        // Force update from root component
-        setDirty(true);
+    const onAddButtonPress = () => {
+        setAddModalDate(date);
+        setShowAddModal(true);
     }
 
     return ( 
@@ -53,8 +50,7 @@ function EventList({ date, setDirty }) {
             { isLoading && <Loading />}
             { !isLoading && eventList.length === 0 && <EmptyEntry /> }
             { !isLoading && eventList.length !== 0 && eventList.map(event => <EventEntry key={event.id} event={event} setEventList={setEventList} onDelete={onDeleteConfirm}/>) }
-            <AddEventButton setShowModal={setShowModal} />
-            <AddEventModal inDate={date} show={showModal} setShow={setShowModal} onAdd={onAdd} />
+            <AddEventButton onPress={onAddButtonPress} />
         </>
     );
 }
