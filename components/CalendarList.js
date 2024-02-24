@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import { FlatList } from "react-native";
 import CalendarEntry from "./CalendarEntry";
 import Loading from "./Loading";
@@ -13,6 +13,8 @@ function CalendarList({ route }) {
 
     const calendarDateContext = useContext(CalendarDateContext);
 
+    const flatListRef = useRef();
+
     useEffect(() => {
         const initialDates = [];
         const today = calendarDateContext.value;
@@ -24,6 +26,7 @@ function CalendarList({ route }) {
         }
         setDates(initialDates);
         setLoading(false);
+        flatListRef.current?.scrollToIndex({ animated: "true", index: 0 });
     }, [calendarDateContext.value]);
 
     const addNextDates = () => {
@@ -48,6 +51,7 @@ function CalendarList({ route }) {
             onEndReached={addNextDates}
             showsVerticalScrollIndicator={false}
             scrollsToTop={false}
+            ref={flatListRef}
         />}
         { loading &&
             <Loading />

@@ -2,12 +2,12 @@ import { StyleSheet, View } from 'react-native';
 import * as db from './db/database';
 import React, { useEffect, useState } from 'react';
 import CalendarList from './components/CalendarList';
-import AddEventForm from './components/AddEventForm';
 import { NavigationContainer } from '@react-navigation/native';
 import Footer from './components/Footer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import PushNotification, { Importance } from 'react-native-push-notification';
 import CalendarDateContext from './contexts/CalendarDateContext';
+import Settings from './components/Settings';
 
 PushNotification.configure({
   onNotification: notification => {
@@ -56,9 +56,8 @@ export default function App() {
               options={{ date: new Date() }}
             />
             <Tab.Screen
-              name="AddEvent"
-              component={AddEventForm}
-              options={{ date: new Date() }}
+              name="Settings"
+              component={Settings}
             />
           </Tab.Navigator>
         </NavigationContainer>

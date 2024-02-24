@@ -36,8 +36,6 @@ function EventEntry({ event, setEventList, onDelete }) {
         });
     }
 
-    console.log("Rendering EventEntry");
-
     return (
         <View style={styles.emptyView}>
             <Pressable style={{ flex: 0.125 }} onPress={toggleNotification}>

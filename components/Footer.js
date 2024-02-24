@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useContext } from "react";
 import { Pressable, StyleSheet, View, Text } from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
+import MCIcon from "react-native-vector-icons/MaterialIcons";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import CalendarDateContext from "../contexts/CalendarDateContext";
 import DatePicker from "react-native-date-picker";
-import { getFormattedDate } from '../common';
+import { Colours, getFormattedDate } from '../common';
 
 function Footer({ state, navigation }) {
     const [openDatePicker, setOpenDatePicker] = useState(false);
@@ -22,12 +23,13 @@ function Footer({ state, navigation }) {
     return (
         <View style={[styles.footerView, styles.elevation]}>
             <View style={[styles.footerLeftView]}>
-            <Pressable style={styles.dateInputPressable} onPress={() => setOpenDatePicker(true)}>
-                            <Text style={styles.dateInputText}>{getFormattedDate(calendarDateContext.value)}</Text>
-                        </Pressable>
+            <FooterButton navigation={navigation} route="Home" currentRoute={currentRoute} icon="calendar" activeColor={Colours.main} inactiveColor={Colours.inactive} />
+                <Pressable style={[styles.dateInputPressable, { marginStart: "2%" }]} onPress={() => setOpenDatePicker(true)}>
+                    <Text style={styles.dateInputText}>{getFormattedDate(calendarDateContext.value)}</Text>
+                </Pressable>
             </View>
             <View style={styles.footerRightView}>
-                <FooterButton navigation={navigation} route="AddEvent" params={{ date: new Date().toISOString() }} currentRoute={currentRoute} icon="settings" activeColor="#0066ff" inactiveColor="#8c8c8c" />
+                <FooterButton navigation={navigation} route="Settings" currentRoute={currentRoute} icon="settings" activeColor={Colours.main} inactiveColor={Colours.inactive} />
             </View>
             <DatePicker modal mode="date" open={openDatePicker} date={calendarDateContext.value} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
         </View>
@@ -38,7 +40,8 @@ function FooterButton({ navigation, route, params, currentRoute, icon, activeCol
 
     return (
         <Pressable style={styles.footerPressable} onPress={() => navigation.navigate(route, params)}>
-            <Icon name={icon} size={40} color={ currentRoute === route ? activeColor : inactiveColor } />
+            { icon === "settings" && <MCIcon name={icon} size={40} color={currentRoute === route ? activeColor : inactiveColor} /> }
+            { icon !== "settings" && <Icon name={icon} size={40} color={currentRoute === route ? activeColor : inactiveColor} /> }
         </Pressable>
     )
 }
@@ -70,11 +73,9 @@ const styles = StyleSheet.create({
         alignItems: "center"
     },
     footerPressable: {
-        marginRight: "10%",
-        marginLeft: "10%"
     },
     dateInputPressable: {
-        backgroundColor: "#ededed",
+        backgroundColor: Colours.secondaryVariant,
         padding: "5%",
         paddingTop: "4%",
         paddingBottom: "4%",
