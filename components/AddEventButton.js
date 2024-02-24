@@ -1,9 +1,19 @@
 import { StyleSheet } from "react-native";
 import { Pressable, Text } from "react-native";
 
-function AddEventButton({ navigation, date }) {
+/*function AddEventButton({ navigation, date }) {
     return (
         <Pressable style={styles.addButtonPressable} onPress={() => navigation.navigate("AddEvent", { date: date.toISOString() })}>
+            <Text style={styles.addButtonText}>
+                +
+            </Text>
+        </Pressable>
+    );
+}*/
+
+function AddEventButton({ setShowModal }) {
+    return (
+        <Pressable style={styles.addButtonPressable} onPress={() => setShowModal(true)}>
             <Text style={styles.addButtonText}>
                 +
             </Text>

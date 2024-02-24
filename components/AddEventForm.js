@@ -5,10 +5,9 @@ import { useState, useCallback } from "react";
 import DatePicker from "react-native-date-picker";
 import { insertEvent } from "../db/database";
 import { useFocusEffect } from "@react-navigation/native";
-import PushNotification, { Importance } from "react-native-push-notification";
 
 function AddEventForm({ navigation, route }) {
-    const [description, setDescription] = useState("My event");
+    const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date(route.params.date));
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);

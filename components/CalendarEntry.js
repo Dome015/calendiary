@@ -1,8 +1,9 @@
-import { Text, View, StyleSheet, Pressable } from "react-native";
+import { Text, View, StyleSheet } from "react-native";
 import { isRed, getDayOfWeekName, getHolidays, isToday, getFormattedDate } from "../common";
 import { PureComponent } from "react";
 import React from "react";
 import EventList from "./EventList";
+import AddEventButton from "./AddEventButton";
 
 class CalendarEntry extends PureComponent {
 
@@ -22,7 +23,6 @@ class CalendarEntry extends PureComponent {
                 </View>
                 <View style={[styles.bodyView, isToday(date) ? styles.bodyViewToday : {}]}>
                     <EventList navigation={this.props.navigation} date={date}/>
-                    <AddEventButton date={date} navigation={this.props.navigation} />
                 </View>
             </View>
         );
