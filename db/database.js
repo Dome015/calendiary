@@ -90,7 +90,7 @@ export const getEventsByDate = async (date) => {
     return new Promise((resolve, reject) => {
         db.transaction((tx) => {
             tx.executeSql(
-                "SELECT * FROM Event where DATE(date, 'localtime') = DATE(?, 'localtime')",
+                "SELECT * FROM Event where DATE(date, 'localtime') = DATE(?, 'localtime') ORDER BY date",
                 [date],
                 (tx, res) => {
                     const result = [];

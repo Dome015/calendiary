@@ -1,11 +1,8 @@
-import { Text, View, StyleSheet, Pressable, Modal } from "react-native";
-import { isRed, getDayOfWeekName, getHolidays, isToday, getFormattedDate, getDateString } from "../common";
-import { PureComponent, useEffect, useState } from "react";
-import { useFocusEffect } from "@react-navigation/native";
+import { Text, View, StyleSheet, Pressable } from "react-native";
+import { isRed, getDayOfWeekName, getHolidays, isToday, getFormattedDate } from "../common";
+import { PureComponent } from "react";
 import React from "react";
-import EmptyEntry from "./EmptyEntry";
-import * as db from "../db/database";
-import EventEntry from "./EventEntry";
+import EventList from "./EventList";
 
 class CalendarEntry extends PureComponent {
 
@@ -30,52 +27,6 @@ class CalendarEntry extends PureComponent {
             </View>
         );
     }
-}
-
-function EventList({ navigation, date }) {
-    const [eventList, setEventList] = useState([]);
-    
-    useFocusEffect(React.useCallback(() => {
-        const fetchEvents = async () => {
-            try {
-                const list = await db.getEventsByDate(date.toISOString());
-                setEventList(list);
-            } catch (e) {
-                console.log(e);
-            }
-        }
-        fetchEvents();
-    }, [date]));
-
-    const onDeleteConfirm = async (event) => {
-        try {
-            await db.deleteEventById(event.id);
-            setEventList(oldEventList => {
-                let eventList = [...oldEventList];
-                eventList = eventList.filter(e => e.id !== event.id);
-                return eventList;
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    }
-
-    return ( 
-        <>
-            { eventList.length === 0 && <EmptyEntry /> }
-            { eventList.map(event => <EventEntry key={event.id} event={event} setEventList={setEventList} navigation={navigation} onDelete={onDeleteConfirm}/>) }
-        </>
-    );
-}
-
-function AddEventButton({ navigation, date }) {
-    return (
-        <Pressable style={styles.addButtonPressable} onPress={() => navigation.navigate("AddEvent", { date: date.toISOString() })}>
-            <Text style={styles.addButtonText}>
-                +
-            </Text>
-        </Pressable>
-    );
 }
 
 const styles = StyleSheet.create({
@@ -132,21 +83,7 @@ const styles = StyleSheet.create({
     bodyViewToday: {
         minHeight: 300
     },
-    addButtonPressable: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#333333",
-        padding: "2%",
-        height: 60,
-        borderRadius: 10,
-        marginTop: "auto"
-    },
-    addButtonText: {
-        color: "white",
-        fontSize: 25
-    }
+    
 });
 
 export default CalendarEntry;
