@@ -1,6 +1,5 @@
 import { View, Text, Alert, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
-import PushNotification, { Importance } from "react-native-push-notification";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
 import { getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
@@ -36,6 +35,8 @@ function EventEntry({ event, setEventList, onDelete }) {
             return eventList;
         });
     }
+
+    console.log("Rendering EventEntry");
 
     return (
         <View style={styles.emptyView}>

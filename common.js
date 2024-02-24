@@ -1,5 +1,4 @@
 import Holidays from "date-holidays";
-import dayjs from "dayjs";
 import PushNotification, { Importance } from "react-native-push-notification";
 
 const hd = new Holidays();
@@ -126,3 +125,10 @@ export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
     }
     return false;
 }
+
+export const Colours = {
+    main: "#0066ff",
+    secondary: "white",
+    secondaryVariant: "#ededed",
+    inactive: "#cccccc"
+};

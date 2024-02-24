@@ -1,13 +1,13 @@
-import { Platform, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import * as db from './db/database';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import CalendarList from './components/CalendarList';
 import AddEventForm from './components/AddEventForm';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Footer from './components/Footer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import PushNotification, { Importance } from 'react-native-push-notification';
+import CalendarDateContext from './contexts/CalendarDateContext';
 
 PushNotification.configure({
   onNotification: notification => {
@@ -33,6 +33,8 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
 
+  const [calendarDate, setCalendarDate] = useState(new Date());
+
   const onStartup = async () => {
     await db.initDatabase();
   }
@@ -42,24 +44,28 @@ export default function App() {
   }, []);
 
   return (
-    
-    <View style={styles.container}>
-      <NavigationContainer>
-        <Tab.Navigator screenOptions={{ headerShown: false, animationEnabled: true }} tabBar={props => <Footer {...props} />} >
-          <Tab.Screen
-            name="Home"
-            component={CalendarList}
-            options={{ date: new Date() }}
-          />
-          <Tab.Screen
-            name="AddEvent"
-            component={AddEventForm}
-            options={{ date: new Date() }}
-          />
-        </Tab.Navigator>
+
+    <CalendarDateContext.Provider value={{ value: calendarDate, setValue: setCalendarDate }} >
+      <View style={styles.container}>
+        <NavigationContainer>
+          <Tab.Navigator screenOptions={{ headerShown: false, animationEnabled: true }} tabBar={props => <Footer {...props} />} >
+            <Tab.Screen
+              name="Home"
+              component={CalendarList}
+
+              options={{ date: new Date() }}
+            />
+            <Tab.Screen
+              name="AddEvent"
+              component={AddEventForm}
+              options={{ date: new Date() }}
+            />
+          </Tab.Navigator>
         </NavigationContainer>
       </View>
-    
+    </CalendarDateContext.Provider>
+
+
   );
 }
 

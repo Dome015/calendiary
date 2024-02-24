@@ -1,19 +1,35 @@
-import { Pressable, StyleSheet, View } from "react-native";
+import React, { useState } from 'react';
+import { useContext } from "react";
+import { Pressable, StyleSheet, View, Text } from "react-native";
 import Icon from "react-native-vector-icons/MaterialIcons";
+import CalendarDateContext from "../contexts/CalendarDateContext";
+import DatePicker from "react-native-date-picker";
+import { getFormattedDate } from '../common';
 
 function Footer({ state, navigation }) {
+    const [openDatePicker, setOpenDatePicker] = useState(false);
+
     const currentRoute = state.routes[state.index].name;
-    console.log(currentRoute);
+
+    const calendarDateContext = useContext(CalendarDateContext)
+
+    const onConfirmDatePick = pickedDate => {
+        calendarDateContext.setValue(pickedDate);
+        setOpenDatePicker(false);
+        navigation.navigate("Home");
+    }
 
     return (
         <View style={[styles.footerView, styles.elevation]}>
             <View style={[styles.footerLeftView]}>
-                <FooterButton navigation={navigation} route="Home" params={{ date: new Date().toISOString() }} currentRoute={currentRoute} icon="calendar-today" activeColor="#0066ff" inactiveColor="#8c8c8c" />
-                <FooterButton navigation={navigation} route="AddEvent" params={{ date: new Date().toISOString() }} currentRoute={currentRoute} icon="add-circle-outline" activeColor="#0066ff" inactiveColor="#8c8c8c" />
+            <Pressable style={styles.dateInputPressable} onPress={() => setOpenDatePicker(true)}>
+                            <Text style={styles.dateInputText}>{getFormattedDate(calendarDateContext.value)}</Text>
+                        </Pressable>
             </View>
             <View style={styles.footerRightView}>
                 <FooterButton navigation={navigation} route="AddEvent" params={{ date: new Date().toISOString() }} currentRoute={currentRoute} icon="settings" activeColor="#0066ff" inactiveColor="#8c8c8c" />
             </View>
+            <DatePicker modal mode="date" open={openDatePicker} date={calendarDateContext.value} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
         </View>
     )
 }
@@ -30,7 +46,7 @@ function FooterButton({ navigation, route, params, currentRoute, icon, activeCol
 const styles = StyleSheet.create({
     footerView: {
         backgroundColor: "white",
-        height: 70,
+        height: 80,
         padding: "4%",
         display: "flex",
         flexDirection: "row"
@@ -40,14 +56,14 @@ const styles = StyleSheet.create({
         shadowColor: "black"
     },
     footerLeftView: {
-        flex: 0.5,
+        flex: 0.7,
         display: "flex",
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center"
     },
     footerRightView: {
-        flex: 0.5,
+        flex: 0.3,
         display: "flex",
         flexDirection: "row",
         justifyContent: "flex-end",
@@ -56,6 +72,17 @@ const styles = StyleSheet.create({
     footerPressable: {
         marginRight: "10%",
         marginLeft: "10%"
+    },
+    dateInputPressable: {
+        backgroundColor: "#ededed",
+        padding: "5%",
+        paddingTop: "4%",
+        paddingBottom: "4%",
+        borderRadius: 5,
+        width: "100%"
+    },
+    dateInputText: {
+        fontSize: 20,
     }
 });
 

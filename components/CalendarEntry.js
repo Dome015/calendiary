@@ -3,7 +3,6 @@ import { isRed, getDayOfWeekName, getHolidays, isToday, getFormattedDate } from 
 import { PureComponent } from "react";
 import React from "react";
 import EventList from "./EventList";
-import AddEventButton from "./AddEventButton";
 
 class CalendarEntry extends PureComponent {
 
@@ -22,7 +21,7 @@ class CalendarEntry extends PureComponent {
                     </View>
                 </View>
                 <View style={[styles.bodyView, isToday(date) ? styles.bodyViewToday : {}]}>
-                    <EventList navigation={this.props.navigation} date={date}/>
+                    <EventList date={date} />
                 </View>
             </View>
         );

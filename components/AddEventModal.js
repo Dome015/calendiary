@@ -1,20 +1,31 @@
-import { useState, useCallback } from "react";
-import { useFocusEffect } from "@react-navigation/native";
-import { StyleSheet, View, Text, Modal, Pressable, Dimensions } from "react-native";
+import { useState, useEffect } from "react";
+import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch } from "react-native";
+import { Colours, getFormattedDate, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
+import DatePicker from "react-native-date-picker";
+import Icon from "react-native-vector-icons/MaterialCommunityIcons";
+import AddEventFormButton from "./AddEventFormButton";
+import { insertEvent } from "../db/database";
 
-function AddEventModal({ inDate, show, setShow }) {
+function AddEventModal({ inDate, show, setShow, onAdd }) {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(inDate);
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
+    
 
-    useFocusEffect(useCallback(() => {
+    const reset = () => {
         // Set initial values
         setDescription("");
-        setDate(inDate);
+        const initialDate = new Date();
+        initialDate.setDate(inDate.getDate());
+        initialDate.setMonth(inDate.getMonth());
+        initialDate.getYear(inDate.getYear());
+        setDate(initialDate);
         setNotification(true);
-    }, []));
+    }
+
+    useEffect(() => reset(), [show]);
 
     const onConfirmDatePick = pickedDate => {
         setDate(date =>
@@ -29,35 +40,83 @@ function AddEventModal({ inDate, show, setShow }) {
     }
 
     const onAddEvent = async () => {
-        const newEvent = {
-            description: description,
-            date: date.toISOString(),
-            notification: notification
-        };
-        const eventId = await insertEvent(newEvent);
-        newEvent.id = eventId;
-        // Schedule notification if necessary
-        if (newEvent.notification) {
-            scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+        try {
+            // Add event to db
+            const newEvent = {
+                description: description,
+                date: date.toISOString(),
+                notification: notification
+            };
+            const eventId = await insertEvent(newEvent);
+            newEvent.id = eventId;
+            // Schedule notification if necessary
+            if (newEvent.notification) {
+                scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+            }
+            // Update parent state
+            onAdd(newEvent);
+        } catch (e) {
+            console.log(e);
         }
         setShow(false);
     }
 
+    const onClose = () => {
+        setShow(false);
+    }
+
     return (
-            <Modal visible={show} animationType="fade" transparent={true} onRequestClose={() => setShow(false)}>
-                <View style={styles.centeredView}>
-                <View style={[styles.modalTitleView, { flex: 0.05 }]}>
+        <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose}>
+            <View style={styles.centeredView} behavior="height">
+                <View style={styles.modalTitleView}>
                     <Text style={styles.modalTitleText}>Add event</Text>
-                    </View>
-                    <View style={[styles.modalBodyView]}>
-                    <Pressable onPress={() => setShow(false)}>
-                        <Text>Add event modal</Text>
+                    <Pressable onPress={onClose}>
+                        <Icon name="close" size={25} color="white"></Icon>
                     </Pressable>
+                </View>
+                {/* Event date/time */}
+                <View style={styles.modalBodyView}>
+                    <View style={styles.formRowView}>
+                        <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
+                            <Icon name="calendar" color={Colours.inactive} size={25} />
+                        </View>
+                        <Pressable style={[styles.formDateInputView, { flex: 0.6, marginStart: "2%" }]} onPress={() => setOpenDatePicker(true)}>
+                            <Text style={styles.formTextInput}>{getFormattedDate(date)}</Text>
+                        </Pressable>
+                        <Pressable style={[styles.formDateInputView, { flex: 0.4, marginStart: "2%" }]} onPress={() => setOpenTimePicker(true)}>
+                            <Text style={styles.formTextInput}>{getFormattedTime(date)}</Text>
+                        </Pressable>
+                    </View>
+                    <View style={styles.formRowView}>
+                        <View style={styles.formTextInputView}>
+                            <TextInput style={styles.formTextInput} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
+                        </View>
+                    </View>
+                    <View style={styles.formRowView}>
+                        <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
+                            <Icon name={notification ? "bell-ring" : "bell"} color={Colours.inactive} size={25} />
+                        </View>
+                        <View style={{ flex: 0.7, display: "flex", flexDirection: "row" }}>
+                            <Text style={styles.formTextLabelText}>Notification</Text>
+                        </View>
+                        <View style={{ flex: 0.2, display: "flex", flexDirection: "row", justifyContent: "flex-end" }}>
+                            <Switch
+                                trackColor={{ true: `color-mix(in srgb, ${Colours.main} 50%, black)`, false: `color-mix(in srgb, ${Colours.inactive} 50%, black)` }}
+                                thumbColor={notification ? Colours.main : Colours.inactive}
+                                onValueChange={() => setNotification(notification => !notification)}
+                                value={notification}
+                            />
+                        </View>
+                    </View>
+                    <View style={[styles.formRowView, { marginBottom: 0 }]}>
+                        <AddEventFormButton onPress={onAddEvent} />
                     </View>
                 </View>
-                    
-            </Modal>
-    )
+                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
+                <DatePicker modal key={1} mode="time" open={openTimePicker} date={date} onConfirm={onConfirmTimePick} onCancel={() => setOpenTimePicker(false)} />
+            </View>
+        </Modal>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -71,16 +130,12 @@ const styles = StyleSheet.create({
         padding: "5%"
     },
     modalTitleView: {
+        padding: "4%",
         backgroundColor: "#0066ff",
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
         alignSelf: "auto",
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        padding: "4%",
         shadowColor: '#000',
         shadowOffset: {
             width: 0,
@@ -89,7 +144,11 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.25,
         shadowRadius: 4,
         elevation: 5,
-    },  
+        display: "flex",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center"
+    },
     modalTitleText: {
         color: "white",
         fontSize: 20,
@@ -120,11 +179,16 @@ const styles = StyleSheet.create({
         alignItems: "center",
         marginBottom: "3%"
     },
+    titleRowView: {
+        display: "flex",
+        flexDirection: "row",
+        alignItems: "center",
+    },
     formTextLabelView: {
         flex: 0.2
     },
     formTextInputView: {
-        backgroundColor: "white",
+        backgroundColor: "#ededed",
         width: "100%",
         borderRadius: 5,
         padding: "3%",
@@ -132,18 +196,16 @@ const styles = StyleSheet.create({
         paddingBottom: "1%"
     },
     formDateInputView: {
-        backgroundColor: "white",
+        backgroundColor: "#ededed",
         padding: "3%",
         paddingTop: "4%",
         paddingBottom: "4%",
         borderRadius: 5,
     },
     formTextLabelText: {
-        color: "#8c8c8c",
         fontSize: 20,
     },
     formTextInput: {
-        color: "#8c8c8c",
         fontSize: 20,
     },
     addEventButtonPressable: {
