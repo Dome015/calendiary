@@ -17,7 +17,6 @@ function Footer({ state, navigation }) {
     const onConfirmDatePick = pickedDate => {
         calendarDateContext.setValue(pickedDate);
         setOpenDatePicker(false);
-        navigation.navigate("Home");
     }
 
     return (

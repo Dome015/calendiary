@@ -8,7 +8,7 @@ import Loading from "./Loading";
 import AddEventModal from "./AddEventModal";
 
 
-function EventList({ date }) {
+function EventList({ date, setDirty }) {
     const [eventList, setEventList] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
@@ -43,14 +43,9 @@ function EventList({ date }) {
         }
     }
 
-    const onAdd = (event) => {
-        // Update event list state
-        setEventList(oldEventList => {
-            let eventList = [...oldEventList];
-            eventList.push(event);
-            eventList.sort((a, b) => a.date.localeCompare(b.date));
-            return eventList;
-        });
+    const onAdd = () => {
+        // Force update from root component
+        setDirty(true);
     }
 
     return ( 
