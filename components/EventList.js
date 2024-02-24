@@ -5,6 +5,7 @@ import EmptyEntry from "./EmptyEntry";
 import { getEventsByDate, deleteEventById } from "../db/database";
 import AddEventModal from "./AddEventModal";
 import AddEventButton from "./AddEventButton";
+import { unscheduleEventNotification } from "../common";
 
 
 function EventList({ navigation, date }) {
@@ -26,6 +27,8 @@ function EventList({ navigation, date }) {
     const onDeleteConfirm = async (event) => {
         try {
             await deleteEventById(event.id);
+            // Unschedule notification
+            unscheduleEventNotification(event);
             setEventList(oldEventList => {
                 let eventList = [...oldEventList];
                 eventList = eventList.filter(e => e.id !== event.id);
