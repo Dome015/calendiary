@@ -82,6 +82,8 @@ export const notificationMinuteOffset = 0;
  * @param {{id: number, description: string, date: string, notification: boolean}} event 
  */
 export const unscheduleEventNotification = event => {
+    console.log("Unscheduling notification for event:");
+    console.log(event);
     PushNotification.cancelLocalNotification(`${event.id}`);
 }
 
@@ -99,7 +101,6 @@ export const unscheduleEventNotification = event => {
 export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
     if (!event.notification)
         return false;
-    console.log("Selected date: " + event.date);
     const scheduleDate = new Date(event.date);
     scheduleDate.setHours(scheduleDate.getHours() - hourOffset);
     scheduleDate.setMinutes(scheduleDate.getMinutes() - minuteOffset);
@@ -107,11 +108,14 @@ export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
         // Unschedule previous notification if there was one
         unscheduleEventNotification(event);
         // Schedule new one
-        console.log("Scheduling notification for: " + scheduleDate);
+        console.log("Scheduling notification for event:");
+        console.log(event);
+        console.log("For date:");
+        console.log(scheduleDate);
         PushNotification.localNotificationSchedule({
             id: `${event.id}`,
             channelId: "calendiary",
-            title: "📅 Upcoming Event!",
+            title: "⏰ Upcoming Event!",
             message: event.description,
             date: scheduleDate,
             allowWhileIdle: true, 

@@ -34,8 +34,6 @@ class CalendarEntry extends PureComponent {
 
 function EventList({ navigation, date }) {
     const [eventList, setEventList] = useState([]);
-    const [eventToDelete, setEventToDelete] = useState(null);
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
     
     useFocusEffect(React.useCallback(() => {
         const fetchEvents = async () => {
@@ -57,7 +55,6 @@ function EventList({ navigation, date }) {
                 eventList = eventList.filter(e => e.id !== event.id);
                 return eventList;
             });
-            setShowDeleteModal(false);
         } catch (e) {
             console.log(e);
         }
@@ -66,13 +63,12 @@ function EventList({ navigation, date }) {
     return ( 
         <>
             { eventList.length === 0 && <EmptyEntry /> }
-            { eventList.map(event => <EventEntry key={event.id} event={event} navigation={navigation} onDelete={onDeleteConfirm}/>) }
-            <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} eventToDelete={eventToDelete} onDeleteConfirm={onDeleteConfirm} />
-        </>);
+            { eventList.map(event => <EventEntry key={event.id} event={event} setEventList={setEventList} navigation={navigation} onDelete={onDeleteConfirm}/>) }
+        </>
+    );
 }
 
 function AddEventButton({ navigation, date }) {
-    console.log(date.toISOString());
     return (
         <Pressable style={styles.addButtonPressable} onPress={() => navigation.navigate("AddEvent", { date: date.toISOString() })}>
             <Text style={styles.addButtonText}>
@@ -80,21 +76,6 @@ function AddEventButton({ navigation, date }) {
             </Text>
         </Pressable>
     );
-}
-
-function DeleteModal({ showDeleteModal, setShowDeleteModal, eventToDelete, onDeleteConfirm }) {
-    if (!eventToDelete)
-        return null;
-
-    return (
-        <Modal
-            visible={showDeleteModal}
-        >
-            <Text>Are you sure you want to delete the event: {eventToDelete.description}?</Text>
-            <Pressable onPress={onDeleteConfirm}><Text>Yes</Text></Pressable>
-            <Pressable onPress={() => setShowDeleteModal(false)}><Text>No</Text></Pressable>
-        </Modal>
-    )
 }
 
 const styles = StyleSheet.create({

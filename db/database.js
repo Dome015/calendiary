@@ -35,6 +35,7 @@ const createEventTable = async () => {
 /**
  * Insert a new event in the
  * @param {{description: string, date: string, notification: boolean}} event The event to add
+ * @return {Promise<number>} The id of the newly created event
  */
 export const insertEvent = async (event) => {
     return new Promise((resolve, reject) => {
@@ -44,6 +45,23 @@ export const insertEvent = async (event) => {
                 VALUES (?, ?, ?);`,
                 [event.description, event.date, event.notification],
                 (tx, res) => resolve(res.insertId),
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
+
+/**
+ * Updates the event based on its id. 
+ * @param {{id:number, description: string, date: string, notification: boolean}} event 
+ */
+export const updateEvent = async (event) => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `UPDATE Event SET description=?, date=?, notification=? WHERE id = ?`,
+                [event.description, event.date, event.notification, event.id],
+                (tx, res) => resolve(res.rowsAffected),
                 (tx, err) => reject(err)
             );
         });

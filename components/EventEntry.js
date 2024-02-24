@@ -1,9 +1,11 @@
-import { View, Text, Alert } from "react-native";
+import { View, Text, Alert, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import PushNotification, { Importance } from "react-native-push-notification";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import { updateEvent } from "../db/database";
+import { getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
 
-function EventEntry({ event, onDelete, onDeleteConfirm }) {
+function EventEntry({ event, setEventList, onDelete, onDeleteConfirm }) {
     const createDeleteAlert = () => {
         Alert.alert("Delete Event", `Are you sure you want to delete this event?\n${event.description}`,
             [
@@ -13,26 +15,39 @@ function EventEntry({ event, onDelete, onDeleteConfirm }) {
         )
     };
 
-    const generateNotification = () => {
-        console.log("creating notification");
-        PushNotification.localNotificationSchedule({
-            channelId: "calendiary",
-            message: "My Notification Message", // (required)
-            date: new Date(Date.now() + 5 * 1000), // in 60 secs
-            allowWhileIdle: true, 
-            importance: Importance.HIGH,
-            priority: "high"
-          });
+    const toggleNotification = () => {
+        const newEvent = {...event};
+        newEvent.notification = !event.notification;
+        console.log(newEvent);
+        if (newEvent.notification)
+            scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+        else
+            unscheduleEventNotification(newEvent);
+        // Update db
+        updateEvent(newEvent);
+        // Update state
+        setEventList(oldEventList => {
+            const eventList = [];
+            for (const oldEvent of oldEventList) {
+                if (oldEvent.id === event.id)
+                    oldEvent.notification = !oldEvent.notification;
+                eventList.push(oldEvent);
+            }
+            return eventList;
+        });
     }
 
     return (
         <View style={styles.emptyView}>
-            <View style={{ flex: 0.2 }}>
-                <Icon.Button
-                    name="bell-ring-outline" iconStyle={styles.onlyIcon} backgroundColor="white"
-                    color="#0066ff" borderRadius={100} size={25} onPress={generateNotification}/>
+            <Pressable style={{ flex: 0.125 }} onPress={toggleNotification}>
+                <Icon
+                    name={event.notification ? "bell-ring-outline" : "bell-outline"}
+                    color="white" size={25} />
+            </Pressable>
+            <View style={{ flex: 0.675 }}>
+                <View><Text style={styles.emptyText}>{event.description}</Text></View>
+                <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date))}</Text></View>
             </View>
-            <View style={{ flex: 0.6 }}><Text style={styles.emptyText}>{event.description}</Text></View>
             <View style={[{ flex: 0.2 }, styles.deleteView]}>
                 <Icon.Button
                     name="trash-can" iconStyle={styles.onlyIcon} backgroundColor="white"
@@ -56,6 +71,11 @@ const styles = StyleSheet.create({
     emptyText: {
         color: "#ffffff",
         fontSize: 20,
+        marginBottom: "2%"
+    },
+    timeText: {
+        color: "#ffffff",
+        fontSize: 10,
     },
     deleteView: {
         display: "flex",
