@@ -49,17 +49,12 @@ function EventList({ navigation, date }) {
         fetchEvents();
     }, [date]));
 
-    const onDelete = (event) => {
-        setEventToDelete(event);
-        setShowDeleteModal(true);
-    }
-
-    const onDeleteConfirm = async () => {
+    const onDeleteConfirm = async (event) => {
         try {
-            await db.deleteEventById(eventToDelete.id);
+            await db.deleteEventById(event.id);
             setEventList(oldEventList => {
                 let eventList = [...oldEventList];
-                eventList = eventList.filter(e => e.id !== eventToDelete.id);
+                eventList = eventList.filter(e => e.id !== event.id);
                 return eventList;
             });
             setShowDeleteModal(false);
@@ -71,12 +66,13 @@ function EventList({ navigation, date }) {
     return ( 
         <>
             { eventList.length === 0 && <EmptyEntry /> }
-            { eventList.map(event => <EventEntry key={event.id} event={event} navigation={navigation} onDelete={onDelete}/>) }
+            { eventList.map(event => <EventEntry key={event.id} event={event} navigation={navigation} onDelete={onDeleteConfirm}/>) }
             <DeleteModal showDeleteModal={showDeleteModal} setShowDeleteModal={setShowDeleteModal} eventToDelete={eventToDelete} onDeleteConfirm={onDeleteConfirm} />
         </>);
 }
 
 function AddEventButton({ navigation, date }) {
+    console.log(date.toISOString());
     return (
         <Pressable style={styles.addButtonPressable} onPress={() => navigation.navigate("AddEvent", { date: date.toISOString() })}>
             <Text style={styles.addButtonText}>

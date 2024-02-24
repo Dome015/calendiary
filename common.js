@@ -1,5 +1,6 @@
 import Holidays from "date-holidays";
 import dayjs from "dayjs";
+import PushNotification, { Importance } from "react-native-push-notification";
 
 const hd = new Holidays();
 hd.init("IT");
@@ -68,5 +69,56 @@ export const getHolidays = date => {
     const holidays = hd.isHoliday(date);
     if (holidays)
         return holidays.map(h => h.name).join(", ");
+    return false;
+}
+
+export const notificationHourOffset = 1;
+export const notificationMinuteOffset = 0;
+
+// Notifications
+
+/**
+ * Unschedules the notification for the given event, if there is one.
+ * @param {{id: number, description: string, date: string, notification: boolean}} event 
+ */
+export const unscheduleEventNotification = event => {
+    PushNotification.cancelLocalNotification(`${event.id}`);
+}
+
+/**
+ * Schedules a notification for the given event, with the given hour/minute offset
+ * in respect to its time. It doesn't schedule the notification if the computed
+ * notification time is before the current time. It returns true or false depending
+ * on whether the notification has been scheduled or not.
+ * It also checks if event.notification is true.
+ * @param {{id: number, description: string, date: string, notification: boolean}} event 
+ * @param {number} hourOffset
+ * @param {number} minuteOffset
+ * @return {boolean}
+ */
+export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
+    if (!event.notification)
+        return false;
+    console.log("Selected date: " + event.date);
+    const scheduleDate = new Date(event.date);
+    scheduleDate.setHours(scheduleDate.getHours() - hourOffset);
+    scheduleDate.setMinutes(scheduleDate.getMinutes() - minuteOffset);
+    if (scheduleDate.getTime() > new Date().getTime()) {
+        // Unschedule previous notification if there was one
+        unscheduleEventNotification(event);
+        // Schedule new one
+        console.log("Scheduling notification for: " + scheduleDate);
+        PushNotification.localNotificationSchedule({
+            id: `${event.id}`,
+            channelId: "calendiary",
+            title: "📅 Upcoming Event!",
+            message: event.description,
+            date: scheduleDate,
+            allowWhileIdle: true, 
+            importance: Importance.HIGH,
+            priority: "high"
+        });
+        return true;
+    }
     return false;
 }

@@ -1,9 +1,11 @@
 import { View, Text, TextInput, Pressable, Switch } from "react-native";
 import { StyleSheet } from "react-native";
-import { getFormattedDate, getFormattedTime } from "../common";
-import { useEffect, useState } from "react";
+import { getFormattedDate, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
+import { useState, useCallback } from "react";
 import DatePicker from "react-native-date-picker";
 import { insertEvent } from "../db/database";
+import { useFocusEffect } from "@react-navigation/native";
+import PushNotification, { Importance } from "react-native-push-notification";
 
 function AddEventForm({ navigation, route }) {
     const [description, setDescription] = useState("My event");
@@ -12,7 +14,9 @@ function AddEventForm({ navigation, route }) {
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
 
-    useEffect(() => console.log("Hello add!"), []);
+    useFocusEffect(useCallback(() => {
+        setDate(new Date(route.params.date));
+    }, [route.params.date]))
 
     const onConfirmDatePick = pickedDate => {
         setDate(date =>
@@ -32,7 +36,12 @@ function AddEventForm({ navigation, route }) {
             date: date.toISOString(),
             notification: notification
         };
-        console.log(await insertEvent(newEvent));
+        const eventId = await insertEvent(newEvent);
+        newEvent.id = eventId;
+        // Schedule notification if necessary
+        if (newEvent.notification) {
+            scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+        }
         navigation.navigate("Home");
     }
 
