@@ -46,7 +46,7 @@ export const getFormattedDateTime = date => `${getFormattedDate(date)} ${date.to
  * @param {Date} date 
  * @returns {string}
  */
-export const getDateString = date => getYear(date) + "-" + ("0" + date.getMonth()).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
+export const getDateString = date => getYear(date) + "-" + ("0" + (date.getMonth() + 1)).slice(-2) + "-" + ("0" + date.getDate()).slice(-2);
 
 /**
  * Returns the first 3 letters of the month of the given date.

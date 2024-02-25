@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
 import { getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
 
-function EventEntry({ event, setEventList, onDelete }) {
+function EventEntry({ event, onDelete }) {
     const createDeleteAlert = () => {
         Alert.alert("Delete Event", `Are you sure you want to delete this event?\n${event.description}`,
             [

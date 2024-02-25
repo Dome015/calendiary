@@ -19,11 +19,13 @@ function Footer({ state, navigation }) {
         setOpenDatePicker(false);
     }
 
+    console.log(openDatePicker);
+
     return (
         <View style={[styles.footerView, styles.elevation]}>
             <View style={[styles.footerLeftView]}>
             <FooterButton navigation={navigation} route="Home" currentRoute={currentRoute} icon="calendar" activeColor={Colours.main} inactiveColor={Colours.inactive} />
-                <Pressable style={[styles.dateInputPressable, { marginStart: "2%" }]} onPress={() => setOpenDatePicker(true)}>
+                <Pressable style={[styles.dateInputPressable, { marginStart: "2%" }]} onPress={() => {console.log("hey"); setOpenDatePicker(true)}}>
                     <Text style={styles.dateInputText}>{getFormattedDate(calendarDateContext.value)}</Text>
                 </Pressable>
             </View>

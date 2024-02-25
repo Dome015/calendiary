@@ -1,31 +1,28 @@
-import { StyleSheet } from "react-native";
-import { Pressable, Text } from "react-native";
+import { StyleSheet, Text } from "react-native";
+import { View } from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { Colours } from "../common";
 
 function AddEventButton({ onPress }) {
     return (
-        <Pressable style={styles.addButtonPressable} onPress={onPress}>
-            <Text style={styles.addButtonText}>
-                +
-            </Text>
-        </Pressable>
+        <View style={styles.addButtonView}>
+            <Icon.Button name="add" size={25} backgroundColor={Colours.main} color={Colours.secondary} onPress={onPress}>
+                <Text style={styles.addButtonText}>New event</Text>
+            </Icon.Button>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    addButtonPressable: {
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#333333",
-        padding: "2%",
-        height: 60,
-        borderRadius: 10,
-        marginTop: "auto"
+    addButtonView: {
+        position: "absolute",
+        bottom: 10,
+        right: 10
     },
     addButtonText: {
-        color: "white",
-        fontSize: 25
+        fontSize: 20,
+        marginRight: 4,
+        color: Colours.secondary
     }
 });
 

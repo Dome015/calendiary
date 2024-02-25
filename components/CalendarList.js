@@ -1,87 +1,90 @@
-import { useContext, useEffect, useRef, useState } from "react";
-import { FlatList } from "react-native";
-import CalendarEntry from "./CalendarEntry";
+import { useEffect, useState } from "react";
 import Loading from "./Loading";
-import CalendarDateContext from "../contexts/CalendarDateContext";
 import AddEventModal from "./AddEventModal";
+import { deleteEventById, getEventsFromToday } from "../db/database";
+import { getDateString, unscheduleEventNotification } from "../common";
+import { SectionList } from "react-native";
+import EventEntry from "./EventEntry";
+import CalendarDate from "./CalendarDate";
+import AddEventButton from "./AddEventButton";
 
 function CalendarList() {
-    const [dates, setDates] = useState([]);
+    const [groupedEventList, setGroupedEventList] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [dirty, setDirty] = useState(false);
-
-    const [addModalDate, setAddModalDate] = useState(new Date());
     const [showAddModal, setShowAddModal] = useState(false);
 
-    const initialNumberOfDates = 7;
-    const addedNumberOfDates = 5;
-
-    const calendarDateContext = useContext(CalendarDateContext);
-
-    const flatListRef = useRef();
-
-    const loadContent = () => {
-        const initialDates = [];
-        const today = calendarDateContext.value;
-        // Populate with initial dates
-        for (let i = 0; i < initialNumberOfDates; i++) {
-            const date = new Date(today);
-            date.setDate(today.getDate() + i);
-            initialDates.push(date);
+    const loadContent = async () => {
+        try {
+            const list = await getEventsFromToday();
+            const groupedList = [];
+            for (const e of list) {
+                const group = groupedList.find(item => item.title === getDateString(new Date(e.date)));
+                if (!group) {
+                    groupedList.push(
+                        { title: getDateString(new Date(e.date)), data: [e] }
+                    );
+                } else {
+                    group.data.push(e);
+                }
+            }
+            setGroupedEventList(groupedList);
+            setLoading(false);
+        } catch (e) {
+            console.log(e);
         }
-        setDates(initialDates);
-        setLoading(false);
     }
 
     useEffect(() => {
         loadContent();
-        flatListRef.current?.scrollToIndex({ animated: "true", index: 0 });
-    }, [calendarDateContext.value]);
+    }, []);
 
-    useEffect(() => {
-        if (dirty) {
-            loadContent();
-            setDirty(false);
+    const onDelete = async (event) => {
+        try {
+            // Update database
+            await deleteEventById(event.id);
+            // Unschedule notification
+            unscheduleEventNotification(event);
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                const newGroupList = [...oldGroupList];
+                const entry = newGroupList.find(el => el.title === getDateString(new Date(event.date)));
+                entry.data = entry.data.filter(el => el.date !== getDateString(new Date(event.date)));
+                return newGroupList;
+            });
+        } catch (e) {
+            console.log(e);
         }
-    }, [dirty]);
+    }
 
-    // To force refresh after event add
-    useEffect(() => {
-        console.log("Dirty detected");
-        if (dirty)
-            setDirty(false);
-    }, [dirty])
-
-    const addNextDates = () => {
-        const startingDate = dates[dates.length - 1];
-        const newDates = [];
-        for (let i = 0; i < addedNumberOfDates; i++) {
-            const date = new Date(startingDate);
-            date.setDate(startingDate.getDate() + i + 1);
-            newDates.push(date); 
+    const onAdd = (event) => {
+        try {
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                const newGroupList = [...oldGroupList];
+                const group = newGroupList.find(elem => elem.title === getDateString(new Date(event.date)));
+                if (!group) {
+                    newGroupList.push({ title: getDateString(new Date(event.date)), data: [event] });
+                } else {
+                    group.data.push(event);
+                }
+                return newGroupList;
+            });
+        } catch (e) {
+            console.log(e);
         }
-        setDates(dates => dates.concat(newDates));
-    };
-
-    const updateEvents = () => setDirty(true);
+    }
 
     return (
         <>
-
-        { !loading &&
-        <FlatList 
-            data={dates}
-            renderItem={element => <CalendarEntry key={element.index} date={element.item} setAddModalDate={setAddModalDate} setShowAddModal={setShowAddModal} />}
-            onEndReachedThreshold={2}
-            onEndReached={addNextDates}
-            showsVerticalScrollIndicator={false}
-            scrollsToTop={false}
-            ref={flatListRef}
-        />}
-        { loading &&
-            <Loading />
-        }
-        <AddEventModal inDate={addModalDate} show={showAddModal} setShow={setShowAddModal} onAdd={updateEvents} />
+        <SectionList
+            sections={groupedEventList}
+            keyExtractor={(e, i) => i}
+            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} />}
+            renderSectionHeader={({section: {title}}) => <CalendarDate date={new Date(title)} />}
+            refreshing={loading}
+        />
+        <AddEventButton onPress={() => {setShowAddModal(true); console.log("hi")}} />
+        <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} />
         </>
     );
 }

@@ -6,9 +6,9 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AddEventFormButton from "./AddEventFormButton";
 import { insertEvent } from "../db/database";
 
-function AddEventModal({ inDate, show, setShow, onAdd }) {
+function AddEventModal({ show, setShow, onAdd }) {
     const [description, setDescription] = useState("");
-    const [date, setDate] = useState(inDate);
+    const [date, setDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
@@ -17,11 +17,6 @@ function AddEventModal({ inDate, show, setShow, onAdd }) {
     const reset = () => {
         // Set initial values
         setDescription("");
-        const initialDate = new Date();
-        initialDate.setDate(inDate.getDate());
-        initialDate.setMonth(inDate.getMonth());
-        initialDate.getYear(inDate.getYear());
-        setDate(initialDate);
         setNotification(true);
     }
 

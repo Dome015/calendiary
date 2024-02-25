@@ -104,3 +104,26 @@ export const getEventsByDate = async (date) => {
         });
     });
 }
+
+/**
+ * Returns all events starting from today.
+ * @returns {Promise<{id: number, description: string, date: string, notification: boolean}[]>}
+ */
+export const getEventsFromToday = async () => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                "SELECT * FROM Event WHERE DATE(date, 'localtime') >= DATE(CURRENT_TIMESTAMP, 'localtime') ORDER BY date",
+                [],
+                (tx, res) => {
+                    const result = [];
+                    for (let i = 0; i < res.rows.length; i++) {
+                        result.push(res.rows.item(i));
+                    }
+                    resolve(result);
+                },
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
