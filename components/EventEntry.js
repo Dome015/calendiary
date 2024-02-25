@@ -2,9 +2,9 @@ import { View, Text, Alert, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
-import { getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
+import { Colours, getDateString, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
 
-function EventEntry({ event, onDelete }) {
+function EventEntry({ event, onDelete, setGroupedEventList }) {
     const createDeleteAlert = () => {
         Alert.alert("Delete Event", `Are you sure you want to delete this event?\n${event.description}`,
             [
@@ -17,7 +17,6 @@ function EventEntry({ event, onDelete }) {
     const toggleNotification = () => {
         const newEvent = {...event};
         newEvent.notification = !event.notification;
-        console.log(newEvent);
         if (newEvent.notification)
             scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
         else
@@ -25,28 +24,30 @@ function EventEntry({ event, onDelete }) {
         // Update db
         updateEvent(newEvent);
         // Update state
-        setEventList(oldEventList => {
-            const eventList = [];
-            for (const oldEvent of oldEventList) {
-                if (oldEvent.id === event.id)
-                    oldEvent.notification = !oldEvent.notification;
-                eventList.push(oldEvent);
+        setGroupedEventList(oldGroupList => {
+            const groupList = [...oldGroupList];
+            const group = groupList.find(elem => elem.title === getDateString(new Date(newEvent.date)));
+            for (let i = 0; i < group.data.length; i++) {
+                if (group.data[i].id === newEvent.id) {
+                    group.data[i] = newEvent;
+                    break;
+                }
             }
-            return eventList;
+            return groupList;
         });
     }
 
     return (
-        <View style={styles.emptyView}>
+        <View style={[styles.emptyView, styles.elevation]}>
             <Pressable style={{ flex: 0.125 }} onPress={toggleNotification}>
                 <Icon
                     name={event.notification ? "bell-ring-outline" : "bell-outline"}
                     color="white" size={25} />
             </Pressable>
-            <View style={{ flex: 0.675 }}>
+            <Pressable style={{ flex: 0.675 }} onPress={() => console.log("here!")}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date))}</Text></View>
-            </View>
+            </Pressable>
             <View style={[{ flex: 0.2 }, styles.deleteView]}>
                 <Icon.Button
                     name="trash-can" iconStyle={styles.onlyIcon} backgroundColor="white"
@@ -62,10 +63,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center",
-        backgroundColor: "#0066ff",
+        backgroundColor: Colours.secondary,
         padding: "5%",
         borderRadius: 10,
-        marginBottom: "2%"
+        marginBottom: "2%",
+        marginLeft: "2%",
+        marginRight: "2%"
     },
     emptyText: {
         color: "#ffffff",
@@ -83,6 +86,17 @@ const styles = StyleSheet.create({
     },
     onlyIcon: {
         marginRight: 0
+    },
+    elevation: {
+        elevation: 20,
+        shadowColor: "black",
+        shadowOpacity: 1,
+        shadowRadius: 4,
+        elevation: 5,
+        shadowOffset: {
+            width: 0,
+            height: 0,
+        },
     },
 });
 

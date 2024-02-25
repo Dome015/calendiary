@@ -8,31 +8,13 @@ import DatePicker from "react-native-date-picker";
 import { Colours, getFormattedDate } from '../common';
 
 function Footer({ state, navigation }) {
-    const [openDatePicker, setOpenDatePicker] = useState(false);
 
     const currentRoute = state.routes[state.index].name;
 
-    const calendarDateContext = useContext(CalendarDateContext)
-
-    const onConfirmDatePick = pickedDate => {
-        calendarDateContext.setValue(pickedDate);
-        setOpenDatePicker(false);
-    }
-
-    console.log(openDatePicker);
-
     return (
         <View style={[styles.footerView, styles.elevation]}>
-            <View style={[styles.footerLeftView]}>
             <FooterButton navigation={navigation} route="Home" currentRoute={currentRoute} icon="calendar" activeColor={Colours.main} inactiveColor={Colours.inactive} />
-                <Pressable style={[styles.dateInputPressable, { marginStart: "2%" }]} onPress={() => {console.log("hey"); setOpenDatePicker(true)}}>
-                    <Text style={styles.dateInputText}>{getFormattedDate(calendarDateContext.value)}</Text>
-                </Pressable>
-            </View>
-            <View style={styles.footerRightView}>
-                <FooterButton navigation={navigation} route="Settings" currentRoute={currentRoute} icon="settings" activeColor={Colours.main} inactiveColor={Colours.inactive} />
-            </View>
-            <DatePicker modal mode="date" open={openDatePicker} date={calendarDateContext.value} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
+            <FooterButton navigation={navigation} route="Settings" currentRoute={currentRoute} icon="settings" activeColor={Colours.main} inactiveColor={Colours.inactive} />
         </View>
     )
 }
@@ -50,30 +32,22 @@ function FooterButton({ navigation, route, params, currentRoute, icon, activeCol
 const styles = StyleSheet.create({
     footerView: {
         backgroundColor: "white",
-        height: 80,
-        padding: "4%",
+        height: 55,
+        padding: "2%",
         display: "flex",
-        flexDirection: "row"
+        flexDirection: "row",
+        justifyContent: "space-around"
     },
     elevation: {
         elevation: 10,
-        shadowColor: "black"
-    },
-    footerLeftView: {
-        flex: 0.7,
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        alignItems: "center"
-    },
-    footerRightView: {
-        flex: 0.3,
-        display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-end",
-        alignItems: "center"
-    },
-    footerPressable: {
+        shadowColor: "black",
+        shadowOffset: {
+            width: 0,
+            height: -5,
+        },
+        shadowOpacity: 0.5,
+        shadowRadius: 4,
+        elevation: 5,
     },
     dateInputPressable: {
         backgroundColor: Colours.secondaryVariant,

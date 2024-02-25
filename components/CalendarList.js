@@ -3,7 +3,7 @@ import Loading from "./Loading";
 import AddEventModal from "./AddEventModal";
 import { deleteEventById, getEventsFromToday } from "../db/database";
 import { getDateString, unscheduleEventNotification } from "../common";
-import { SectionList } from "react-native";
+import { SectionList, StyleSheet, View } from "react-native";
 import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
@@ -79,7 +79,7 @@ function CalendarList() {
         <SectionList
             sections={groupedEventList}
             keyExtractor={(e, i) => i}
-            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} />}
+            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} />}
             renderSectionHeader={({section: {title}}) => <CalendarDate date={new Date(title)} />}
             refreshing={loading}
         />
