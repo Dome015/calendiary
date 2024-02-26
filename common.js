@@ -91,7 +91,8 @@ export const unscheduleEventNotification = event => {
  * in respect to its time. It doesn't schedule the notification if the computed
  * notification time is before the current time. It returns true or false depending
  * on whether the notification has been scheduled or not.
- * It also checks if event.notification is true.
+ * It also checks if event.notification is true, and removes the previously scheduled
+ * notification if there is one already.
  * @param {{id: number, description: string, date: string, notification: boolean}} event 
  * @param {number} hourOffset
  * @param {number} minuteOffset
@@ -128,7 +129,9 @@ export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
 
 export const Colours = {
     main: "#0066ff",
+    mainDarker: "#0052cc",
     secondary: "white",
     secondaryVariant: "#ededed",
-    inactive: "#cccccc"
+    inactive: "#cccccc",
+    dark: "#262626"
 };

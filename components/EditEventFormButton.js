@@ -1,23 +1,17 @@
 import { Pressable, StyleSheet, Text } from "react-native";
 import { Colours } from "../common";
 
-function AddEventFormButton({ onPress }) {
+function EditEventFormButton({ onPress }) {
     return (
-        <Pressable
-            onPress={onPress}
-            style={
-                ({ pressed }) => { console.log(pressed); return [
-                    styles.buttonPressable,
-                    { backgroundColor: pressed ? Colours.mainDarker : Colours.main }
-                ] }
-            }>
-            <Text style={styles.buttonText}>Add</Text>
+        <Pressable style={styles.buttonPressable} onPress={onPress}>
+            <Text style={styles.buttonText}>Edit</Text>
         </Pressable>
     );
 }
 
 const styles = StyleSheet.create({
     buttonPressable: {
+        backgroundColor: Colours.main,
         borderRadius: 20,
         width: "100%",
         display: "flex",
@@ -34,4 +28,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default AddEventFormButton;
+export default EditEventFormButton;

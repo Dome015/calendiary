@@ -1,9 +1,8 @@
 import { useEffect, useState } from "react";
-import Loading from "./Loading";
 import AddEventModal from "./AddEventModal";
 import { deleteEventById, getEventsFromToday } from "../db/database";
 import { getDateString, unscheduleEventNotification } from "../common";
-import { SectionList, StyleSheet, View } from "react-native";
+import { SectionList } from "react-native";
 import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
@@ -12,6 +11,7 @@ function CalendarList() {
     const [groupedEventList, setGroupedEventList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
+    const [eventToEdit, setEventToEdit] = useState(null);
 
     const loadContent = async () => {
         try {
@@ -48,7 +48,7 @@ function CalendarList() {
             setGroupedEventList(oldGroupList => {
                 const newGroupList = [...oldGroupList];
                 const entry = newGroupList.find(el => el.title === getDateString(new Date(event.date)));
-                entry.data = entry.data.filter(el => el.date !== getDateString(new Date(event.date)));
+                entry.data = entry.data.filter(el => el.id !== event.id);
                 return newGroupList;
             });
         } catch (e) {
@@ -56,6 +56,7 @@ function CalendarList() {
         }
     }
 
+    
     const onAdd = (event) => {
         try {
             // Update state
@@ -66,9 +67,48 @@ function CalendarList() {
                     newGroupList.push({ title: getDateString(new Date(event.date)), data: [event] });
                 } else {
                     group.data.push(event);
+                    group.data.sort((a, b) => a.date.localeCompare(b.date));
                 }
                 return newGroupList;
             });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    const onEditStart = (event) => {
+        setEventToEdit(event);
+        setShowAddModal(true);
+    }
+
+    const onEdit = (event) => {
+        try {
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                const newGroupList = [...oldGroupList];
+                if (eventToEdit.date === event.date) {
+                    const group = newGroupList.find(elem => elem.title === getDateString(new Date(eventToEdit.date)));
+                    let oldEvent = group.data.find(elem => elem.id === eventToEdit.id);
+                    Object.assign(oldEvent, event);
+                } else {
+                    let group = newGroupList.find(elem => elem.title === getDateString(new Date(eventToEdit.date)));
+                    group.data = group.data.filter(elem => elem.id !== eventToEdit.id);
+                    console.log(group.data);
+                    let newGroup = newGroupList.find(elem => elem.title === getDateString(new Date(event.date)));
+                    if (!newGroup) {
+                        // The group for this date doesn't currently exist - create it with the new event
+                        newGroup = { title: getDateString(new Date(event.date)), data: [event] };
+                        newGroupList.push(newGroup);
+                    } else {
+                        // The group for this date already exists - add the new event
+                        newGroup.data.push(event);
+                        newGroup.data.sort((a, b) => a.date.localeCompare(b.date));
+                    }
+                }
+                return newGroupList;
+            });
+            // Reset event to edit
+            setEventToEdit(null);
         } catch (e) {
             console.log(e);
         }
@@ -79,12 +119,12 @@ function CalendarList() {
         <SectionList
             sections={groupedEventList}
             keyExtractor={(e, i) => i}
-            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} />}
-            renderSectionHeader={({section: {title}}) => <CalendarDate date={new Date(title)} />}
+            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} onMiddlePress={onEditStart} />}
+            renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
             refreshing={loading}
         />
         <AddEventButton onPress={() => {setShowAddModal(true); console.log("hi")}} />
-        <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} />
+        <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} eventToEdit={eventToEdit} onEdit={onEdit} setEventToEdit={setEventToEdit} />
         </>
     );
 }

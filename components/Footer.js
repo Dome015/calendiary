@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
-import { useContext } from "react";
-import { Pressable, StyleSheet, View, Text } from "react-native";
+import React from 'react';
+import { Pressable, StyleSheet, View } from "react-native";
 import MCIcon from "react-native-vector-icons/MaterialIcons";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import CalendarDateContext from "../contexts/CalendarDateContext";
-import DatePicker from "react-native-date-picker";
-import { Colours, getFormattedDate } from '../common';
+import { Colours } from '../common';
 
 function Footer({ state, navigation }) {
 

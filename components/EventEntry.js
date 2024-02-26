@@ -4,7 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
 import { Colours, getDateString, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
 
-function EventEntry({ event, onDelete, setGroupedEventList }) {
+function EventEntry({ event, onDelete, setGroupedEventList, onMiddlePress }) {
     const createDeleteAlert = () => {
         Alert.alert("Delete Event", `Are you sure you want to delete this event?\n${event.description}`,
             [
@@ -44,7 +44,7 @@ function EventEntry({ event, onDelete, setGroupedEventList }) {
                     name={event.notification ? "bell-ring-outline" : "bell-outline"}
                     color="white" size={25} />
             </Pressable>
-            <Pressable style={{ flex: 0.675 }} onPress={() => console.log("here!")}>
+            <Pressable style={{ flex: 0.675 }} onPress={() => onMiddlePress(event)}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date))}</Text></View>
             </Pressable>
@@ -71,12 +71,12 @@ const styles = StyleSheet.create({
         marginRight: "2%"
     },
     emptyText: {
-        color: "#ffffff",
+        color: Colours.dark,
         fontSize: 20,
         marginBottom: "2%"
     },
     timeText: {
-        color: "#ffffff",
+        color: Colours.dark,
         fontSize: 10,
     },
     deleteView: {

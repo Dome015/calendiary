@@ -4,20 +4,27 @@ import { Colours, getFormattedDate, getFormattedTime, notificationHourOffset, no
 import DatePicker from "react-native-date-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AddEventFormButton from "./AddEventFormButton";
-import { insertEvent } from "../db/database";
+import { insertEvent, updateEvent } from "../db/database";
+import EditEventFormButton from "./EditEventFormButton";
 
-function AddEventModal({ show, setShow, onAdd }) {
+function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit }) {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
-    
 
     const reset = () => {
         // Set initial values
-        setDescription("");
-        setNotification(true);
+        if (eventToEdit) {
+            setDescription(eventToEdit.description);
+            setDate(new Date(eventToEdit.date));
+            setNotification(eventToEdit.notification);
+        } else {
+            setDescription("");
+            setNotification(true);
+        }
+        
     }
 
     useEffect(() => reset(), [show]);
@@ -56,7 +63,29 @@ function AddEventModal({ show, setShow, onAdd }) {
         setShow(false);
     }
 
+    const onEditEvent = async () => {
+        try {
+            // Edit event on the db
+            const newEvent = {
+                id: eventToEdit.id,
+                description: description,
+                date: date.toISOString(),
+                notification: notification
+            };
+            await updateEvent(newEvent);
+            // Schedule notification if necessary
+            if (newEvent.notification)
+                scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+            // Update parent state
+            onEdit(newEvent);
+        } catch (e) {
+            console.log(e);
+        }
+        setShow(false);
+    }
+
     const onClose = () => {
+        setEventToEdit(null);
         setShow(false);
     }
 
@@ -64,7 +93,7 @@ function AddEventModal({ show, setShow, onAdd }) {
         <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose}>
             <View style={styles.centeredView} behavior="height">
                 <View style={styles.modalTitleView}>
-                    <Text style={styles.modalTitleText}>Add event</Text>
+                    <Text style={styles.modalTitleText}>{eventToEdit ? "Edit event" : "Add event"}</Text>
                     <Pressable onPress={onClose}>
                         <Icon name="close" size={25} color="white"></Icon>
                     </Pressable>
@@ -104,10 +133,10 @@ function AddEventModal({ show, setShow, onAdd }) {
                         </View>
                     </View>
                     <View style={[styles.formRowView, { marginBottom: 0 }]}>
-                        <AddEventFormButton onPress={onAddEvent} />
+                        { eventToEdit ? <EditEventFormButton onPress={onEditEvent} /> : <AddEventFormButton onPress={onAddEvent} /> }
                     </View>
                 </View>
-                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
+                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
                 <DatePicker modal key={1} mode="time" open={openTimePicker} date={date} onConfirm={onConfirmTimePick} onCancel={() => setOpenTimePicker(false)} />
             </View>
         </Modal>
@@ -172,7 +201,7 @@ const styles = StyleSheet.create({
         display: "flex",
         flexDirection: "row",
         alignItems: "center",
-        marginBottom: "3%"
+        marginBottom: "5%"
     },
     titleRowView: {
         display: "flex",
