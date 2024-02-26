@@ -44,7 +44,7 @@ function EventEntry({ event, onDelete, setGroupedEventList, onMiddlePress }) {
                     name={event.notification ? "bell-ring-outline" : "bell-outline"}
                     color="white" size={25} />
             </Pressable>
-            <Pressable style={{ flex: 0.675 }} onPress={() => onMiddlePress(event)}>
+            <Pressable style={{ flex: 0.675, backgroundColor: "red" }} onPress={() => onMiddlePress(event)}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date))}</Text></View>
             </Pressable>

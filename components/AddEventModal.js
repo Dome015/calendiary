@@ -6,6 +6,7 @@ import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import AddEventFormButton from "./AddEventFormButton";
 import { insertEvent, updateEvent } from "../db/database";
 import EditEventFormButton from "./EditEventFormButton";
+import FormButton from "./FormButton";
 
 function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit }) {
     const [description, setDescription] = useState("");
@@ -133,7 +134,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         </View>
                     </View>
                     <View style={[styles.formRowView, { marginBottom: 0 }]}>
-                        { eventToEdit ? <EditEventFormButton onPress={onEditEvent} /> : <AddEventFormButton onPress={onAddEvent} /> }
+                        { eventToEdit ? <FormButton onPress={onEditEvent} text="Edit" /> : <FormButton onPress={onAddEvent} text="Add" /> }
                     </View>
                 </View>
                 <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />

@@ -6,12 +6,14 @@ import { SectionList } from "react-native";
 import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
+import ViewEventModal from "./ViewEventModal";
 
 function CalendarList() {
     const [groupedEventList, setGroupedEventList] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showAddModal, setShowAddModal] = useState(false);
     const [eventToEdit, setEventToEdit] = useState(null);
+    const [showViewModal, setShowViewModal] = useState(false);
 
     const loadContent = async () => {
         try {
@@ -51,6 +53,8 @@ function CalendarList() {
                 entry.data = entry.data.filter(el => el.id !== event.id);
                 return newGroupList;
             });
+            setShowViewModal(false);
+            setEventToEdit(null);
         } catch (e) {
             console.log(e);
         }
@@ -76,9 +80,9 @@ function CalendarList() {
         }
     }
 
-    const onEditStart = (event) => {
+    const onEventView = (event) => {
         setEventToEdit(event);
-        setShowAddModal(true);
+        setShowViewModal(true);
     }
 
     const onEdit = (event) => {
@@ -119,11 +123,12 @@ function CalendarList() {
         <SectionList
             sections={groupedEventList}
             keyExtractor={(e, i) => i}
-            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} onMiddlePress={onEditStart} />}
+            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
             renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
             refreshing={loading}
         />
-        <AddEventButton onPress={() => {setShowAddModal(true); console.log("hi")}} />
+        <AddEventButton onPress={() => setShowAddModal(true)} />
+        <ViewEventModal event={eventToEdit} setEvent={setEventToEdit} show={showViewModal} setShow={setShowViewModal} setShowEdit={setShowAddModal} onDelete={onDelete} />
         <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} eventToEdit={eventToEdit} onEdit={onEdit} setEventToEdit={setEventToEdit} />
         </>
     );
