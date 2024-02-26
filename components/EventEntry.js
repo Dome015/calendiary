@@ -4,15 +4,7 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
 import { Colours, getDateString, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification, unscheduleEventNotification } from "../common";
 
-function EventEntry({ event, onDelete, setGroupedEventList, onMiddlePress }) {
-    const createDeleteAlert = () => {
-        Alert.alert("Delete Event", `Are you sure you want to delete this event?\n${event.description}`,
-            [
-                { text: "No", style: "cancel" },
-                { text: "Yes", onPress: () => onDelete(event) },
-            ]
-        )
-    };
+function EventEntry({ event, setGroupedEventList, onMiddlePress }) {
 
     const toggleNotification = () => {
         const newEvent = {...event};
@@ -39,20 +31,15 @@ function EventEntry({ event, onDelete, setGroupedEventList, onMiddlePress }) {
 
     return (
         <View style={[styles.emptyView, styles.elevation]}>
-            <Pressable style={{ flex: 0.125 }} onPress={toggleNotification}>
-                <Icon
-                    name={event.notification ? "bell-ring-outline" : "bell-outline"}
-                    color="white" size={25} />
-            </Pressable>
-            <Pressable style={{ flex: 0.675, backgroundColor: "red" }} onPress={() => onMiddlePress(event)}>
+            <Pressable style={{ flex: 0.9 }} onPress={() => onMiddlePress(event)}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date))}</Text></View>
             </Pressable>
-            <View style={[{ flex: 0.2 }, styles.deleteView]}>
-                <Icon.Button
-                    name="trash-can" iconStyle={styles.onlyIcon} backgroundColor="white"
-                    color="#0066ff" borderRadius={100} size={25} onPress={createDeleteAlert}/>
-            </View>
+            <Pressable style={{ flex: 0.1 }} onPress={toggleNotification}>
+                <Icon
+                    name={event.notification ? "bell-ring-outline" : "bell-outline"}
+                    color={Colours.dark} size={25} />
+            </Pressable>
         </View>
     );
 }

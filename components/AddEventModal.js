@@ -3,9 +3,7 @@ import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch } from "rea
 import { Colours, getFormattedDate, getFormattedTime, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
 import DatePicker from "react-native-date-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import AddEventFormButton from "./AddEventFormButton";
 import { insertEvent, updateEvent } from "../db/database";
-import EditEventFormButton from "./EditEventFormButton";
 import FormButton from "./FormButton";
 
 function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit }) {
@@ -101,6 +99,12 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 </View>
                 {/* Event date/time */}
                 <View style={styles.modalBodyView}>
+                    
+                    <View style={styles.formRowView}>
+                        <View style={styles.formTextInputView}>
+                            <TextInput style={styles.formTextInput} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
+                        </View>
+                    </View>
                     <View style={styles.formRowView}>
                         <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
                             <Icon name="calendar" color={Colours.inactive} size={25} />
@@ -111,11 +115,6 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         <Pressable style={[styles.formDateInputView, { flex: 0.4, marginStart: "2%" }]} onPress={() => setOpenTimePicker(true)}>
                             <Text style={styles.formTextInput}>{getFormattedTime(date)}</Text>
                         </Pressable>
-                    </View>
-                    <View style={styles.formRowView}>
-                        <View style={styles.formTextInputView}>
-                            <TextInput style={styles.formTextInput} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
-                        </View>
                     </View>
                     <View style={styles.formRowView}>
                         <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
@@ -134,7 +133,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         </View>
                     </View>
                     <View style={[styles.formRowView, { marginBottom: 0 }]}>
-                        { eventToEdit ? <FormButton onPress={onEditEvent} text="Edit" /> : <FormButton onPress={onAddEvent} text="Add" /> }
+                        { eventToEdit ? <FormButton onPress={onEditEvent} text="Save" /> : <FormButton onPress={onAddEvent} text="Add" /> }
                     </View>
                 </View>
                 <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />

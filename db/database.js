@@ -1,5 +1,7 @@
 import SQLite from "react-native-sqlite-storage";
 
+const RESET_DATABASE = false;
+
 const openDatabase = () => {
     return SQLite.openDatabase({ name: "calendario.db", location: "default" },
         () => console.log("Database successfully open"),
@@ -11,8 +13,29 @@ const db = openDatabase();
 console.log(db);
 
 export const initDatabase = async () => {
-    await createEventTable();
+    try {
+        if (RESET_DATABASE) {
+            await dropEventTable();
+        }
+        await createEventTable();
+    } catch (e) {
+        console.log(e);
+    }
+    
 };
+
+const dropEventTable = async () => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `DROP TABLE Event;`,
+                [],
+                (tx, res) => resolve(),
+                (tx, err) => reject(err.message)
+            );
+        });
+    });
+}
 
 const createEventTable = async () => {
     return new Promise((resolve, reject) => {
@@ -22,7 +45,8 @@ const createEventTable = async () => {
                     id INTEGER PRIMARY KEY,
                     description TEXT NOT NULL,
                     date TEXT NOT NULL,
-                    notification BOOLEAN NOT NULL DEFAULT FALSE
+                    notification BOOLEAN NOT NULL DEFAULT FALSE,
+                    notificationMinOffset INT NOT NULL DEFAULT 60
                 );`,
                 [],
                 (tx, res) => resolve(),
@@ -34,7 +58,7 @@ const createEventTable = async () => {
 
 /**
  * Insert a new event in the
- * @param {{description: string, date: string, notification: boolean}} event The event to add
+ * @param {{description: string, date: string, notification: boolean, notificationMinOffset: number|null}} event The event to add
  * @return {Promise<number>} The id of the newly created event
  */
 export const insertEvent = async (event) => {
@@ -53,7 +77,7 @@ export const insertEvent = async (event) => {
 
 /**
  * Updates the event based on its id. 
- * @param {{id:number, description: string, date: string, notification: boolean}} event 
+ * @param {{id: number, description: string, date: string, notification: boolean, notificationMinOffset: number|null}} event 
  */
 export const updateEvent = async (event) => {
     return new Promise((resolve, reject) => {
@@ -84,7 +108,7 @@ export const deleteEventById = async (id) => {
 /**
  * Get all the events for a given date
  * @param {string} date 
- * @returns {Promise<{id: number, description: string, date: string, notification: boolean}[]>}
+ * @returns {Promise<{id: number, description: string, date: string, notification: boolean, notificationMinOffset: number|null}[]>}
  */
 export const getEventsByDate = async (date) => {
     return new Promise((resolve, reject) => {
@@ -107,7 +131,7 @@ export const getEventsByDate = async (date) => {
 
 /**
  * Returns all events starting from today.
- * @returns {Promise<{id: number, description: string, date: string, notification: boolean}[]>}
+ * @returns {Promise<{id: number, description: string, date: string, notification: boolean, notificationMinOffset: number|null}[]>}
  */
 export const getEventsFromToday = async () => {
     return new Promise((resolve, reject) => {

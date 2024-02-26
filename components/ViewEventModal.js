@@ -7,6 +7,8 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
     if (!event)
         return null;
 
+    console.log(event);
+
     const onClose = () => {
         setEvent(null);
         setShow(false);
@@ -28,33 +30,33 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
 
     const eventDate = new Date(event.date);
     const notificationDate = new Date(event.date);
-    notificationDate.setHours(notificationDate.getHours() - notificationHourOffset);
-    notificationDate.setMinutes(notificationDate.getMinutes() - notificationMinuteOffset);
+    notificationDate.setMinutes(notificationDate.getMinutes() - event.notificationMinOffset);
 
     return (
         <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose}>
             <View style={styles.centeredView} behavior="height">
                 <View style={styles.modalTitleView}>
-                    <Text style={styles.modalTitleText}>Event on {getFormattedDate(eventDate)}</Text>
+                    <Text style={styles.modalTitleText}>Event</Text>
                     <Pressable onPress={onClose}>
                         <Icon name="close" size={25} color="white"></Icon>
                     </Pressable>
                 </View>
                 <View style={styles.modalBodyView}>
-                    <View style={styles.rowView}>
-                        <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
-                            <Icon name="calendar" color={Colours.inactive} size={25} />
-                        </View>
-                        <Text style={[styles.rowText, { flex: 0.9 }]}>{getFormattedDateTime(eventDate)}</Text>
-                    </View>
+                    
                     <View style={styles.rowView}>
                         <Text style={styles.rowText}>{event.description}</Text>
                     </View>
                     <View style={styles.rowView}>
                         <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
+                            <Icon name="calendar" color={Colours.inactive} size={25} />
+                        </View>
+                        <Text style={[styles.rowTextNotification, { flex: 0.9 }]}>{getFormattedDateTime(eventDate)}</Text>
+                    </View>
+                    <View style={styles.rowView}>
+                        <View style={{ flex: 0.1, display: "flex", flexDirection: "row" }}>
                             <Icon name={event.notification ? "bell-ring" : "bell"} color={Colours.inactive} size={25} />
                         </View>
-                        <Text style={[styles.rowTextNotification, { flex: 0.9 }]}>{event.notification ? `You will be notified on ${getFormattedDateTime(eventDate)}` : "Notification disabled"}</Text>
+                        <Text style={[styles.rowTextNotification, { flex: 0.9 }]}>{event.notification ? `You will be notified on ${getFormattedDateTime(notificationDate)}` : "Notification disabled"}</Text>
                     </View>
                    <View style={[styles.rowView, { marginBottom: 0 }]}>
                         <View style={{ flex: 0.5, marginRight: "2%" }}><FormButton onPress={createDeleteAlert} text="Delete" backgroundColor={Colours.danger} /></View>

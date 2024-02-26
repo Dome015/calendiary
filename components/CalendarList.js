@@ -123,7 +123,7 @@ function CalendarList() {
         <SectionList
             sections={groupedEventList}
             keyExtractor={(e, i) => i}
-            renderItem={({ item }) => <EventEntry event={item} onDelete={onDelete} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
+            renderItem={({ item }) => <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
             renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
             refreshing={loading}
         />
