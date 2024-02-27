@@ -100,7 +100,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 notification: notification,
                 notificationMinOffset: notificationMinOffset
             };
-            await updateEvent(newEvent);
+            updateEvent(newEvent);
             // Schedule notification if necessary
             if (newEvent.notification)
                 scheduleEventNotification(newEvent, settingsContext.timeFormat);

@@ -37,7 +37,7 @@ export const getDayOfWeekName = date => dayStr[date.getDay()];
  * @param {Date} date 
  * @returns {string}
  */
-export const getFormattedDate = date => date.toLocaleDateString("en-UK", { year: "numeric", month: "short", day: "numeric"});
+export const getFormattedDate = date => `${monthStr[date.getMonth()]} ${date.getDate()}, ${1900 + date.getYear()}`;
 
 /**
  * Returns the formatted time, according to the given time format.
@@ -134,7 +134,9 @@ export const scheduleEventNotification = (event, timeFormat) => {
             date: scheduleDate,
             allowWhileIdle: true, 
             importance: Importance.HIGH,
-            priority: "high"
+            priority: "high",
+            playSound: true,
+            soundName: "default"
         });
         return true;
     }
