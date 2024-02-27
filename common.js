@@ -93,17 +93,16 @@ export const unscheduleEventNotification = event => {
  * on whether the notification has been scheduled or not.
  * It also checks if event.notification is true, and removes the previously scheduled
  * notification if there is one already.
- * @param {{id: number, description: string, date: string, notification: boolean}} event 
+ * @param {{id: number, description: string, date: string, notification: boolean, notificationMinOffset: number|null}} event 
  * @param {number} hourOffset
  * @param {number} minuteOffset
  * @return {boolean}
  */
-export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
+export const scheduleEventNotification = (event) => {
     if (!event.notification)
         return false;
     const scheduleDate = new Date(event.date);
-    scheduleDate.setHours(scheduleDate.getHours() - hourOffset);
-    scheduleDate.setMinutes(scheduleDate.getMinutes() - minuteOffset);
+    scheduleDate.setMinutes(scheduleDate.getMinutes() - event.notificationMinOffset);
     if (scheduleDate.getTime() > new Date().getTime()) {
         // Unschedule previous notification if there was one
         unscheduleEventNotification(event);
@@ -115,7 +114,7 @@ export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
         PushNotification.localNotificationSchedule({
             id: `${event.id}`,
             channelId: "calendiary",
-            title: "⏰ Upcoming Event!",
+            title: `⏰ Upcoming event at ${getFormattedTime(new Date(event.date))}!`,
             message: event.description,
             date: scheduleDate,
             allowWhileIdle: true, 
@@ -126,6 +125,37 @@ export const scheduleEventNotification = (event, hourOffset, minuteOffset) => {
     }
     return false;
 }
+
+/**
+ * Converts a number of minutes into an object that contains the corresponding days, hours and minutes.
+ * @param {number} minutes 
+ * @returns {{days: number, hours: number, minutes: number}}
+ */
+export const getDhm = minutes => {
+    let m = minutes;
+    // Compute days
+    const days = Math.floor(m / (24*60));
+    m -= days * 24*60;
+    // Compute hours
+    const hours = Math.floor(m / 60);
+    m -= hours * 60;
+    // Return 
+    return {
+        days: days,
+        hours: hours,
+        minutes: m
+    };
+}
+
+/**
+ * Returns the total number of minutes for the given d/h/m.
+ * @param {number} days 
+ * @param {number} hours 
+ * @param {number} minutes 
+ * @returns {number}
+ */
+export const getMinutes = (days, hours, minutes) => days*24*60 + hours*60 + minutes;
+
 
 /**
     CREDIT: Teddy Garland

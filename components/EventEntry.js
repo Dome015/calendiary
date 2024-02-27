@@ -10,7 +10,7 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress }) {
         const newEvent = {...event};
         newEvent.notification = !event.notification;
         if (newEvent.notification)
-            scheduleEventNotification(newEvent, notificationHourOffset, notificationMinuteOffset);
+            scheduleEventNotification(newEvent);
         else
             unscheduleEventNotification(newEvent);
         // Update db
@@ -60,7 +60,7 @@ const styles = StyleSheet.create({
     emptyText: {
         color: Colours.dark,
         fontSize: 20,
-        marginBottom: "2%"
+        fontWeight: "bold",
     },
     timeText: {
         color: Colours.dark,

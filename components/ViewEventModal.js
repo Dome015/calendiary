@@ -1,5 +1,5 @@
 import { Modal, View, StyleSheet, Text, Pressable, Alert } from "react-native";
-import { Colours, getFormattedDate, getFormattedDateTime, notificationHourOffset, notificationMinuteOffset } from "../common";
+import { Colours, getFormattedDateTime } from "../common";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import FormButton from "./FormButton";
 
