@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
-import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch } from "react-native";
+import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch, Alert } from "react-native";
 import { Colours, getDhm, getFormattedDate, getFormattedTime, getMinutes, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
 import DatePicker from "react-native-date-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { insertEvent, updateEvent } from "../db/database";
 import FormButton from "./FormButton";
 
-function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit }) {
+function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit, setShowView }) {
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
@@ -107,8 +107,19 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
         setShow(false);
     }
 
-    const onCancelEditEvent = () => {
+    const onCancelEdit = () => {
+        Alert.alert("Cancel edit", `Are you sure you want to cancel all changes and go back?`,
+            [
+                { text: "No", style: "cancel" },
+                { text: "Yes", onPress: onCancelConfirm },
+            ]
+        )
+    }
 
+    const onCancelConfirm = () => {
+        // Go back to view screen
+        setShowView(true);
+        setShow(false);
     }
 
     const onClose = () => {
@@ -226,8 +237,14 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         </View>
                     </View> }
                     <View style={[styles.formRowView, { marginBottom: 0 }]}>
-                        { eventToEdit && <FormButton onPress={onCancelEditEvent} text="Back" /> }
-                        {eventToEdit ? <FormButton onPress={onEditEvent} text="Save" /> : <FormButton onPress={onAddEvent} text="Add" />}
+                        { eventToEdit ?
+                            <>
+                                <View style={{ flex: 0.5, marginEnd: "2%" }}><FormButton onPress={onCancelEdit} text="Cancel" backgroundColor={Colours.danger} /></View>
+                                <View style={{ flex: 0.5, marginStart: "2%" }}><FormButton onPress={onEditEvent} text="Save" /></View>
+                            </>
+                            :
+                             <FormButton onPress={onAddEvent} text="Add" />
+                        }
                     </View> 
                 </View>
                 <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />

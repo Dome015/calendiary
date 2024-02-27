@@ -119,7 +119,9 @@ export const getEventsByDate = async (date) => {
                 (tx, res) => {
                     const result = [];
                     for (let i = 0; i < res.rows.length; i++) {
-                        result.push(res.rows.item(i));
+                        const item = {...res.rows.item(i)};
+                        item.notification = Boolean(item.notification);
+                        result.push(item);
                     }
                     resolve(result);
                 },
@@ -142,7 +144,9 @@ export const getEventsFromToday = async () => {
                 (tx, res) => {
                     const result = [];
                     for (let i = 0; i < res.rows.length; i++) {
-                        result.push(res.rows.item(i));
+                        const item = {...res.rows.item(i)};
+                        item.notification = Boolean(item.notification);
+                        result.push(item);
                     }
                     resolve(result);
                 },
