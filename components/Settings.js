@@ -48,7 +48,7 @@ function Settings() {
         <View style={styles.formView}>
             {/* Location */}
             <View style={styles.formRowView}>
-                <Icon name="place" style={{ marginRight: "2%" }} color={Colours.inactive} size={25} />
+                <Icon name="place" style={{ marginRight: "2%" }} color={Colours.main} size={25} />
                 <Text style={styles.formTextLabelText}>
                     Location
                 </Text>
@@ -60,13 +60,13 @@ function Settings() {
 
             </View>
             <View style={styles.formRowView}>
-                <Text style={styles.formTextLabelText}>
+                <Text style={styles.formTextSublabelText}>
                     Location is used to keep track of national holidays.
                 </Text>
             </View>
             {/* Time format */}
             <View style={styles.formRowView}>
-                <Icon name="access-time" style={{ marginRight: "2%" }} color={Colours.inactive} size={25} />
+                <Icon name="access-time" style={{ marginRight: "2%" }} color={Colours.main} size={25} />
                 <Text style={styles.formTextLabelText}>
                     Time format
                 </Text>
@@ -78,7 +78,7 @@ function Settings() {
                 </Picker>
             </View>
             <View style={styles.formRowView}>
-                <Text style={styles.formTextLabelText}>
+                <Text style={styles.formTextSublabelText}>
                     Example: {getFormattedTime(new Date(), timeFormat)}
                 </Text>
             </View>
@@ -88,6 +88,11 @@ function Settings() {
             <View style={styles.formRowView}>
                 <Text style={styles.formDisclaimerText}>
                     Calendario is a free application to keep track of upcoming events; all the data is stored locally on your device, and shared with no one.
+                </Text>
+            </View>
+            <View style={styles.formRowView}>
+                <Text style={styles.formDisclaimerText}>
+                    To report bugs or suggest new features, write to manuardi.domenico.00@gmail.com.
                 </Text>
             </View>
             <View style={styles.formRowView}>
@@ -115,6 +120,11 @@ const styles = StyleSheet.create({
         color: Colours.dark
     },
     formTextLabelText: {
+        fontSize: 18,
+        fontWeight: "bold",
+        color: Colours.main
+    },
+    formTextSublabelText: {
         fontSize: 18,
         color: Colours.dark
     },

@@ -9,10 +9,10 @@ function CalendarDate({ date }) {
 
     return (
         <View style={styles.dateView}>
-            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.dark }]}>{getFormattedDate(date)}</Text>
-            <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.dark }]}>{getDayOfWeekName(date)}</Text>
+            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{getFormattedDate(date)}</Text>
+            <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{getDayOfWeekName(date)}</Text>
             {holidays !== false &&
-                <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.dark }]}>{holidays}</Text>}
+                <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{holidays}</Text>}
         </View>
     );
 }
