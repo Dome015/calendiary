@@ -252,7 +252,7 @@ export const Colours = {
     main: "#0066ff",
     secondary: "white",
     secondaryVariant: "#ededed",
-    inactive: "#cccccc",
+    inactive: "#737373",
     dark: "#262626",
     danger: "#cc0000"
 };

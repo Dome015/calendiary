@@ -1,5 +1,5 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Colours, Countries } from "../common";
+import { Colours, Countries, getFormattedTime } from "../common";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useFocusEffect } from "@react-navigation/native";
 import { useCallback, useContext, useState } from "react";
@@ -46,11 +46,6 @@ function Settings() {
 
     return (
         <View style={styles.formView}>
-            <View style={styles.formRowView}>
-                <Text style={styles.formTitleText}>
-                    Settings
-                </Text>
-            </View>
             {/* Location */}
             <View style={styles.formRowView}>
                 <Icon name="place" style={{ marginRight: "2%" }} color={Colours.inactive} size={25} />
@@ -62,22 +57,33 @@ function Settings() {
                 <Picker style={styles.formPicker} selectedValue={location} onValueChange={newLocation => onLocationChange(newLocation)}>
                     {Countries.list.map((c, i) => <Picker.Item style={styles.formPickerItem} key={i} label={c.name} value={c.code} />)}
                 </Picker>
+
+            </View>
+            <View style={styles.formRowView}>
+                <Text style={styles.formTextLabelText}>
+                    Location is used to keep track of national holidays.
+                </Text>
             </View>
             {/* Time format */}
             <View style={styles.formRowView}>
-                <View style={{ flex: 0.3, display: "flex", flexDirection: "row", paddingEnd: "2%", alignItems: "center" }}>
-                    <Icon name="access-time" style={{ marginRight: "2%" }} color={Colours.inactive} size={25} />
-                    <Text style={styles.formTextLabelText}>
-                        Time format
-                    </Text>
-                </View>
-                <View style={{ flex: 0.7 }}>
-                    <Picker style={styles.formPicker} selectedValue={timeFormat} onValueChange={newTimeFormat => onTimeFormatChange(newTimeFormat)}>
-                        <Picker.Item style={styles.formPickerItem} label="12 hours" value="12" />
-                        <Picker.Item style={styles.formPickerItem} label="24 hours" value="24" />
-                    </Picker>
-                </View>
+                <Icon name="access-time" style={{ marginRight: "2%" }} color={Colours.inactive} size={25} />
+                <Text style={styles.formTextLabelText}>
+                    Time format
+                </Text>
+
             </View>
+            <View style={styles.formRowView}>
+                <Picker style={styles.formPicker} selectedValue={timeFormat} onValueChange={newTimeFormat => onTimeFormatChange(newTimeFormat)}>
+                    <Picker.Item style={styles.formPickerItem} label="12 hours" value="12" />
+                    <Picker.Item style={styles.formPickerItem} label="24 hours" value="24" />
+                </Picker>
+            </View>
+            <View style={styles.formRowView}>
+                <Text style={styles.formTextLabelText}>
+                    Example: {getFormattedTime(new Date(), timeFormat)}
+                </Text>
+            </View>
+
         </View>
     )
 }
@@ -103,7 +109,6 @@ const styles = StyleSheet.create({
     },
     formPicker: {
         backgroundColor: Colours.secondary,
-        borderRadius: 10,
         elevation: 20,
         shadowColor: "black",
         shadowOpacity: 1,
@@ -112,10 +117,11 @@ const styles = StyleSheet.create({
         shadowOffset: {
             width: 0,
             height: 0,
-        }
+        },
+        flex: 1
     },
     formPickerItem: {
-        fontSize: 15,
+        fontSize: 18,
         color: Colours.dark
     }
 })
