@@ -70,7 +70,6 @@ function Settings() {
                 <Text style={styles.formTextLabelText}>
                     Time format
                 </Text>
-
             </View>
             <View style={styles.formRowView}>
                 <Picker style={styles.formPicker} selectedValue={timeFormat} onValueChange={newTimeFormat => onTimeFormatChange(newTimeFormat)}>
@@ -84,13 +83,25 @@ function Settings() {
                 </Text>
             </View>
 
+            <View style={styles.formSeparator} />
+
+            <View style={styles.formRowView}>
+                <Text style={styles.formDisclaimerText}>
+                    Calendario is a free application to keep track of upcoming events; all the data is stored locally on your device, and shared with no one.
+                </Text>
+            </View>
+            <View style={styles.formRowView}>
+                <Text style={styles.formDisclaimerText}>
+                    This software by Domenico Manuardi is licensed under CC BY-NC-ND 4.0.
+                </Text>
+            </View>
         </View>
     )
 }
 
 const styles = StyleSheet.create({
     formView: {
-        margin: "3%"
+        margin: "3%",
     },
     formRowView: {
         display: "flex",
@@ -105,6 +116,10 @@ const styles = StyleSheet.create({
     },
     formTextLabelText: {
         fontSize: 18,
+        color: Colours.dark
+    },
+    formDisclaimerText: {
+        fontSize: 16,
         color: Colours.inactive
     },
     formPicker: {
@@ -123,6 +138,12 @@ const styles = StyleSheet.create({
     formPickerItem: {
         fontSize: 18,
         color: Colours.dark
+    },
+    formSeparator: {
+        height: 1,
+        backgroundColor: Colours.inactive,
+        width: "100%",
+        marginBottom: "2%"
     }
 })
 

@@ -182,7 +182,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
 
                     <View style={styles.formRowView}>
                         <View style={styles.formTextInputView}>
-                            <TextInput style={styles.formTextInput} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
+                            <TextInput style={styles.formTextInput} placeholderTextColor={Colours.inactive} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
                         </View>
                     </View>
                     <View style={styles.formRowView}>
@@ -216,7 +216,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                     { notification && <View style={styles.formRowView}>
                         <View style={{ flex: 0.2 }}>
                         <View style={styles.formSmallTextInputView}>
-                            <TextInput style={styles.formSmallTextInput} placeholder="0" value={notificationDays.toString()} onChangeText={onNotificationDaysChange} keyboardType="number-pad" />
+                            <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationDays.toString()} onChangeText={onNotificationDaysChange} keyboardType="number-pad" />
                             </View>
                         </View>
                         <View style={{ flex: 0.05, marginStart: "2%" }}>
@@ -225,7 +225,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
 
                         <View style={{ flex: 0.2, marginStart: "2%" }}>
                             <View style={styles.formSmallTextInputView}>
-                                <TextInput style={styles.formSmallTextInput} placeholder="0" value={notificationHours.toString()} onChangeText={onNotificationHoursChange} keyboardType="number-pad" />
+                                <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationHours.toString()} onChangeText={onNotificationHoursChange} keyboardType="number-pad" />
                             </View>
                         </View>
                         <View style={{ flex: 0.05, marginStart: "2%" }}>
@@ -234,7 +234,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
 
                         <View style={{ flex: 0.2, marginStart: "2%" }}>
                             <View style={styles.formSmallTextInputView}>
-                                <TextInput style={styles.formSmallTextInput} placeholder="0" value={notificationMins.toString()} onChangeText={onNotificationMinsChange} keyboardType="number-pad" />
+                                <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationMins.toString()} onChangeText={onNotificationMinsChange} keyboardType="number-pad" />
                             </View>
                         </View>
                         <View style={{ flex: 0.3, marginStart: "2%" }}>
@@ -271,7 +271,7 @@ const styles = StyleSheet.create({
     },
     modalTitleView: {
         padding: "4%",
-        backgroundColor: "#0066ff",
+        backgroundColor: Colours.main,
         width: "100%",
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
     },
     modalBodyView: {
         padding: "4%",
-        backgroundColor: "white",
+        backgroundColor: Colours.secondaryVariant,
         width: "100%",
         borderBottomLeftRadius: 20,
         borderBottomRightRadius: 20,
@@ -328,7 +328,7 @@ const styles = StyleSheet.create({
         flex: 0.2
     },
     formTextInputView: {
-        backgroundColor: "#ededed",
+        backgroundColor: Colours.secondary,
         width: "100%",
         borderRadius: 5,
         padding: "3%",
@@ -336,7 +336,7 @@ const styles = StyleSheet.create({
         paddingBottom: "1%"
     },
     formDateInputView: {
-        backgroundColor: "#ededed",
+        backgroundColor: Colours.secondary,
         padding: "3%",
         paddingTop: "4%",
         paddingBottom: "4%",
@@ -344,18 +344,22 @@ const styles = StyleSheet.create({
     },
     formTextLabelText: {
         fontSize: 20,
+        color: Colours.dark
     },
     formTextLabelSmallText: {
         fontSize: 17,
+        color: Colours.dark,
     },
     formTextInput: {
+        backgroundColor: Colours.secondary,
+        color: Colours.dark,
         fontSize: 20,
     },
     formSmallTextInput: {
         fontSize: 17,
     },
     formSmallTextInputView: {
-        backgroundColor: Colours.secondaryVariant,
+        backgroundColor: Colours.secondary,
         width: "100%",
         borderRadius: 5,
         display: "flex",

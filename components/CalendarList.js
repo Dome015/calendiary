@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import AddEventModal from "./AddEventModal";
 import { deleteEventById, getEventsFromToday } from "../db/database";
 import { getDateString, unscheduleEventNotification } from "../common";
-import { SectionList } from "react-native";
+import { SectionList, StyleSheet, View } from "react-native";
 import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
@@ -63,7 +63,7 @@ function CalendarList() {
         }
     }
 
-    
+
     const onAdd = (event) => {
         try {
             // Update state
@@ -123,18 +123,26 @@ function CalendarList() {
 
     return (
         <>
-        <SectionList
-            sections={groupedEventList}
-            keyExtractor={(e, i) => i}
-            renderItem={({ item }) => <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
-            renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
-            refreshing={loading}
-        />
-        <AddEventButton onPress={() => setShowAddModal(true)} />
-        <ViewEventModal event={eventToEdit} setEvent={setEventToEdit} show={showViewModal} setShow={setShowViewModal} setShowEdit={setShowAddModal} onDelete={onDelete} />
-        <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} eventToEdit={eventToEdit} onEdit={onEdit} setEventToEdit={setEventToEdit} setShowView={setShowViewModal} />
+            <View style={styles.listView}>
+                <SectionList
+                    sections={groupedEventList}
+                    keyExtractor={(e, i) => i}
+                    renderItem={({ item }) => <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
+                    renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
+                    refreshing={loading}
+                />
+            </View>
+            <AddEventButton onPress={() => setShowAddModal(true)} />
+            <ViewEventModal event={eventToEdit} setEvent={setEventToEdit} show={showViewModal} setShow={setShowViewModal} setShowEdit={setShowAddModal} onDelete={onDelete} />
+            <AddEventModal show={showAddModal} setShow={setShowAddModal} onAdd={onAdd} eventToEdit={eventToEdit} onEdit={onEdit} setEventToEdit={setEventToEdit} setShowView={setShowViewModal} />
         </>
     );
 }
+
+const styles = StyleSheet.create({
+    listView: {
+        marginTop: "3%"
+    }
+});
 
 export default CalendarList;

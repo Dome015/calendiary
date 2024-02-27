@@ -79,7 +79,7 @@ export const getYear = date => 1900 + date.getYear();
  * based on the given location.
  * @param {Date} date 
  * @param {string} location
- * @returns {string[]|false}
+ * @returns {string}
  */
 export const getHolidays = (date, location) => {
     const hd = new Holidays();
@@ -252,8 +252,8 @@ export const Colours = {
     main: "#0066ff",
     secondary: "white",
     secondaryVariant: "#ededed",
-    inactive: "#737373",
-    dark: "#262626",
+    inactive: "#999999",
+    dark: "#404040",
     danger: "#cc0000"
 };
 
