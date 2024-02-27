@@ -1,14 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch, Alert } from "react-native";
 import { Colours, getDhm, getFormattedDate, getFormattedTime, getMinutes, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
 import DatePicker from "react-native-date-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { insertEvent, updateEvent } from "../db/database";
 import FormButton from "./FormButton";
+import SettingsContext from "../contexts/SettingsContext";
 
 function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit, setShowView }) {
+    const today = new Date();
+
     const [description, setDescription] = useState("");
-    const [date, setDate] = useState(new Date());
+    const [date, setDate] = useState(today);
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
@@ -16,6 +19,8 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     const [notificationDays, setNotificationDays] = useState("");
     const [notificationHours, setNotificationHours] = useState("60");
     const [notificationMins, setNotificationMins] = useState("");
+
+    const settingsContext = useContext(SettingsContext);
 
     const reset = () => {
         // Set initial values
@@ -42,13 +47,13 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
 
     const onConfirmDatePick = pickedDate => {
         setDate(date =>
-            new Date(pickedDate.getFullYear(), pickedDate.getMonth(), pickedDate.getDate(), date.getHours(), date.getMinutes()));
+            new Date(pickedDate.getFullYear(), pickedDate.getMonth(), pickedDate.getDate(), date.getHours(), date.getMinutes(), 0, 0));
         setOpenDatePicker(false);
     }
 
     const onConfirmTimePick = pickedTime => {
         setDate(date =>
-            new Date(date.getFullYear(), date.getMonth(), date.getDate(), pickedTime.getHours(), pickedTime.getMinutes()));
+            new Date(date.getFullYear(), date.getMonth(), date.getDate(), pickedTime.getHours(), pickedTime.getMinutes(), 0, 0));
         setOpenTimePicker(false);
     }
 
@@ -70,7 +75,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
             newEvent.id = eventId;
             // Schedule notification if necessary
             if (newEvent.notification) {
-                scheduleEventNotification(newEvent);
+                scheduleEventNotification(newEvent, settingsContext.timeFormat);
             }
             // Update parent state
             onAdd(newEvent);
@@ -98,7 +103,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
             await updateEvent(newEvent);
             // Schedule notification if necessary
             if (newEvent.notification)
-                scheduleEventNotification(newEvent);
+                scheduleEventNotification(newEvent, settingsContext.timeFormat);
             // Update parent state
             onEdit(newEvent);
         } catch (e) {
@@ -188,7 +193,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                             <Text style={styles.formTextInput}>{getFormattedDate(date)}</Text>
                         </Pressable>
                         <Pressable style={[styles.formDateInputView, { flex: 0.4 }]} onPress={() => setOpenTimePicker(true)}>
-                            <Text style={styles.formTextInput}>{getFormattedTime(date)}</Text>
+                            <Text style={styles.formTextInput}>{getFormattedTime(date, settingsContext.timeFormat)}</Text>
                         </Pressable>
                     </View>
                     <View style={styles.formRowView}>
@@ -247,7 +252,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         }
                     </View> 
                 </View>
-                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
+                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={today} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
                 <DatePicker modal key={1} mode="time" open={openTimePicker} date={date} onConfirm={onConfirmTimePick} onCancel={() => setOpenTimePicker(false)} />
             </View>
         </Modal>

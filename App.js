@@ -6,8 +6,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import Footer from './components/Footer';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import PushNotification, { Importance } from 'react-native-push-notification';
-import CalendarDateContext from './contexts/CalendarDateContext';
 import Settings from './components/Settings';
+import LocationContext from './contexts/SettingsContext';
 
 PushNotification.configure({
   onNotification: notification => {
@@ -33,10 +33,15 @@ const Tab = createBottomTabNavigator();
 
 export default function App() {
 
-  const [calendarDate, setCalendarDate] = useState(new Date());
+  const [location, setLocation] = useState("US");
+  const [timeFormat, setTimeFormat] = useState("12");
 
   const onStartup = async () => {
     await db.initDatabase();
+    const dbLocation = await db.getSettingByName("location");
+    setLocation(dbLocation.value);
+    const dbTimeLocation = await db.getSettingByName("timeFormat");
+    setTimeFormat(dbTimeLocation.value);
   }
 
   useEffect(() => {
@@ -44,15 +49,13 @@ export default function App() {
   }, []);
 
   return (
-
-    <CalendarDateContext.Provider value={{ value: calendarDate, setValue: setCalendarDate }} >
+    <LocationContext.Provider value={{ location: location, setLocation: setLocation, timeFormat: timeFormat, setTimeFormat: setTimeFormat }}>
       <View style={styles.container}>
         <NavigationContainer>
           <Tab.Navigator screenOptions={{ headerShown: false, animationEnabled: true }} tabBar={props => <Footer {...props} />} >
             <Tab.Screen
               name="Home"
               component={CalendarList}
-
               options={{ date: new Date() }}
             />
             <Tab.Screen
@@ -62,9 +65,7 @@ export default function App() {
           </Tab.Navigator>
         </NavigationContainer>
       </View>
-    </CalendarDateContext.Provider>
-
-
+    </LocationContext.Provider >
   );
 }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import AddEventModal from "./AddEventModal";
 import { deleteEventById, getEventsFromToday } from "../db/database";
 import { getDateString, unscheduleEventNotification } from "../common";
@@ -7,6 +7,7 @@ import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
 import ViewEventModal from "./ViewEventModal";
+import SettingsContext from "../contexts/SettingsContext";
 
 function CalendarList() {
     const [groupedEventList, setGroupedEventList] = useState([]);
@@ -14,6 +15,8 @@ function CalendarList() {
     const [showAddModal, setShowAddModal] = useState(false);
     const [eventToEdit, setEventToEdit] = useState(null);
     const [showViewModal, setShowViewModal] = useState(false);
+
+    const settingsContext = useContext(SettingsContext);
 
     const loadContent = async () => {
         try {
@@ -45,7 +48,7 @@ function CalendarList() {
             // Update database
             await deleteEventById(event.id);
             // Unschedule notification
-            unscheduleEventNotification(event);
+            unscheduleEventNotification(event, settingsContext.timeFormat);
             // Update state
             setGroupedEventList(oldGroupList => {
                 const newGroupList = [...oldGroupList];

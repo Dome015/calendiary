@@ -15,27 +15,30 @@ console.log(db);
 export const initDatabase = async () => {
     try {
         if (RESET_DATABASE) {
+            await dropSettingsTable();
             await dropEventTable();
         }
         await createEventTable();
+        await createSettingsTable();
+        // Initialize location, default to US
+        let setting = await getSettingByName("location");
+        if (!setting) {
+            setting = { name: "location", value: "US" };
+            await insertSetting(setting);
+        }
+        // Initialize time format, default to 24
+        setting = await getSettingByName("timeFormat");
+        if (!setting) {
+            setting = { name: "timeFormat", value: "12" };
+            await insertSetting(setting);
+        }
     } catch (e) {
         console.log(e);
     }
     
 };
 
-const dropEventTable = async () => {
-    return new Promise((resolve, reject) => {
-        db.transaction((tx) => {
-            tx.executeSql(
-                `DROP TABLE Event;`,
-                [],
-                (tx, res) => resolve(),
-                (tx, err) => reject(err.message)
-            );
-        });
-    });
-}
+// Events
 
 const createEventTable = async () => {
     return new Promise((resolve, reject) => {
@@ -48,6 +51,19 @@ const createEventTable = async () => {
                     notification BOOLEAN NOT NULL DEFAULT FALSE,
                     notificationMinOffset INT NOT NULL DEFAULT 60
                 );`,
+                [],
+                (tx, res) => resolve(),
+                (tx, err) => reject(err.message)
+            );
+        });
+    });
+}
+
+const dropEventTable = async () => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `DROP TABLE Event;`,
                 [],
                 (tx, res) => resolve(),
                 (tx, err) => reject(err.message)
@@ -155,3 +171,99 @@ export const getEventsFromToday = async () => {
         });
     });
 }
+
+// Settings
+
+const createSettingsTable = async () => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `CREATE TABLE IF NOT EXISTS Settings (
+                    name TEXT PRIMARY KEY,
+                    value TEXT NOT NULL
+                );`,
+                [],
+                (tx, res) => resolve(),
+                (tx, err) => reject(err.message)
+            );
+        });
+    });
+}
+
+const dropSettingsTable = async () => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `DROP TABLE Settings;`,
+                [],
+                (tx, res) => resolve(),
+                (tx, err) => reject(err.message)
+            );
+        });
+    });
+}
+
+/**
+ * Saves a new setting in the db
+ * @param {{name: string, value: string}} setting 
+ * @returns {Promise<boolean|*>} True in case of success, or an error in case of failure.  
+ */
+export const insertSetting = setting => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `INSERT INTO Settings (name, value)
+                VALUES (?, ?);`,
+                [setting.name, setting.value],
+                (tx, res) => resolve(true),
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
+
+/**
+ * Updates the setting with the given name with the new value.
+ * @param {{name: string, value: string}} setting 
+ * @returns {Promise<number|*>} Number of rows affected or error.
+ */
+export const updateSetting = setting => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `UPDATE Settings SET value=? WHERE name=?`,
+                [setting.value, setting.name],
+                (tx, res) => resolve(res.rowsAffected),
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
+
+/**
+ * Retrieves a setting by its name.
+ * @param {string} name - The name of the setting to retrieve.
+ * @returns {Promise<{name: string, value: string}|null|*>} The setting object if found, or null if not found, or an error.
+ */
+export const getSettingByName = name => {
+    return new Promise((resolve, reject) => {
+        db.transaction((tx) => {
+            tx.executeSql(
+                `SELECT * FROM Settings WHERE name=?;`,
+                [name],
+                (tx, res) => {
+                    if (res.rows.length > 0) {
+                        // Extract the setting object from the result
+                        const setting = res.rows.item(0);
+                        resolve(setting);
+                    } else {
+                        resolve(null); // Setting not found
+                    }
+                },
+                (tx, err) => reject(err)
+            );
+        });
+    });
+}
+
+
