@@ -1,10 +1,10 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Colours } from "../common";
 
-function HolidayEventEntry({ event }) {
+function HolidayEventEntry({ event, large }) {
     return ( 
-        <View style={styles.entryView}>
-            <View><Text style={styles.emptyText}>{event.description}</Text></View>
+        <View style={[styles.entryView, large ? { height: 80 } : { height: 60 }]}>
+            <View><Text style={styles.entryText}>{event.description}</Text></View>
             <View><Text style={styles.timeText}>Holiday</Text></View>
         </View>
      );
@@ -13,10 +13,10 @@ function HolidayEventEntry({ event }) {
 const styles = StyleSheet.create({
     entryView: {
         display: "flex",
-        flexDirection: "row",
-        justifyContent: "flex-start",
-        alignItems: "center",
-        backgroundColor: Colours.danger,
+        flexDirection: "column",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
+        backgroundColor: Colours.secondary,
         borderRadius: 10,
         marginBottom: "2%",
         marginLeft: "3%",
@@ -33,12 +33,18 @@ const styles = StyleSheet.create({
         },
     },
     entryText: {
-        color: Colours.secondary,
+        color: Colours.dark,
         fontSize: 20,
         fontWeight: "bold",
     },
+    entryPressable: {
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent:"space-between"
+    },
     timeText: {
-        color: Colours.secondary,
+        color: Colours.dark,
         fontSize: 10,
     },
 })

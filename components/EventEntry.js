@@ -2,11 +2,13 @@ import { View, Text, Pressable } from "react-native";
 import { StyleSheet } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
-import { Colours, getDateString, getFormattedTime, scheduleEventNotification, unscheduleEventNotification } from "../common";
-import { useContext } from "react";
+import { Colours, blendColors, getDateString, getFormattedTime, scheduleEventNotification, unscheduleEventNotification } from "../common";
+import { useContext, useState } from "react";
 import SettingsContext from "../contexts/SettingsContext";
 
-function EventEntry({ event, setGroupedEventList, onMiddlePress }) {
+function EventEntry({ event, setGroupedEventList, onMiddlePress, large }) {
+    const [pressed, setPressed] = useState(false);
+
     const settingsContext = useContext(SettingsContext)
 
     const toggleNotification = () => {
@@ -33,8 +35,13 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress }) {
     }
 
     return (
-        <View style={[styles.emptyView, styles.elevation]}>
-            <Pressable style={{ flex: 0.9 }} onPress={() => onMiddlePress(event)}>
+        <View style={[
+            styles.emptyView,
+            styles.elevation,
+            large ? { height: 80 } : { height: 60 },
+            { backgroundColor: pressed ? blendColors(Colours.secondary, "#000000", 0.2) : Colours.secondary }]}
+        >
+            <Pressable style={[{ flex: 0.9 }, styles.entryPressable]} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} onPress={() => onMiddlePress(event)}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date), settingsContext.timeFormat)}</Text></View>
             </Pressable>
@@ -53,7 +60,6 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "flex-start",
         alignItems: "center",
-        backgroundColor: Colours.secondary,
         borderRadius: 10,
         marginBottom: "2%",
         marginLeft: "3%",
@@ -64,6 +70,12 @@ const styles = StyleSheet.create({
         color: Colours.dark,
         fontSize: 20,
         fontWeight: "bold",
+    },
+    entryPressable: {
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        justifyContent:"space-between"
     },
     timeText: {
         color: Colours.dark,

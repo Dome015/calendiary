@@ -33,12 +33,12 @@ function Settings() {
 
     const onTimeFormatChange = newTimeFormat => {
         try {
-            // Change location on db
-            updateSetting({ name: "timeFormat", value: newTimeFormat });
-            // Update state
-            setTimeFormat(newTimeFormat);
             // Update context
             settingsContext.setTimeFormat(newTimeFormat);
+            // Update state
+            setTimeFormat(newTimeFormat);
+            // Change location on db
+            updateSetting({ name: "timeFormat", value: newTimeFormat });
         } catch (e) {
             console.log(e);
         }

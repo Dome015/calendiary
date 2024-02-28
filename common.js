@@ -197,13 +197,13 @@ export function blendColors(color1, color2, percentage)
 
     // 1: validate input, make sure we have provided a valid hex
     if (color1.length != 4 && color1.length != 7)
-        throw new error('colors must be provided as hexes');
+        throw new Error('colors must be provided as hexes');
 
     if (color2.length != 4 && color2.length != 7)
-        throw new error('colors must be provided as hexes');    
+        throw new Error('colors must be provided as hexes');    
 
     if (percentage > 1 || percentage < 0)
-        throw new error('percentage must be between 0 and 1');
+        throw new Error('percentage must be between 0 and 1');
 
     // 2: check to see if we need to convert 3 char hex to 6 char hex, else slice off hash
     //      the three character hex is just a representation of the 6 hex where each character is repeated
@@ -252,7 +252,7 @@ function int_to_hex(num)
 
 export const Colours = {
     main: "#0066ff",
-    secondary: "white",
+    secondary: "#ffffff",
     secondaryVariant: "#ededed",
     inactive: "#999999",
     dark: "#404040",

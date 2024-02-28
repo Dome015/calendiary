@@ -70,7 +70,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 description: description,
                 date: date.toISOString(),
                 notification: notification,
-                notificationMinOffset: notificationMinOffset
+                notificationMinOffset: notificationMinOffset,
             };
             const eventId = await insertEvent(newEvent);
             newEvent.id = eventId;

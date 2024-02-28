@@ -1,18 +1,15 @@
 import { StyleSheet, Text, View } from "react-native";
-import { Colours, getDayOfWeekName, getFormattedDate, getHolidays, isRed } from "../common";
+import { Colours, getDayOfWeekName, getFormattedDate, isRed } from "../common";
 import { useContext } from "react";
 import SettingsContext from "../contexts/SettingsContext";
 
-function CalendarDate({ date }) {
+function CalendarDate({ date, large }) {
     const settingsContext = useContext(SettingsContext);
-    const holidays = getHolidays(date, settingsContext.location);
 
     return (
         <View style={styles.dateView}>
-            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{getFormattedDate(date)}</Text>
-            <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{getDayOfWeekName(date)}</Text>
-            {holidays !== false &&
-                <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }]}>{holidays}</Text>}
+            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }, large ? { fontSize: 30 } : { fontSize: 20 }]}>{getFormattedDate(date)}</Text>
+            <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }, large ? { fontSize: 15 } : { fontSize: 15 }]}>{getDayOfWeekName(date)}</Text>
         </View>
     );
 }
@@ -24,11 +21,10 @@ const styles = StyleSheet.create({
         marginRight: "3%"
     },
     dateText: {
-        fontSize: 20,
-        fontWeight: "bold"
+        fontWeight: "bold",
+        fontFamily: "consolas"
     },
     dateTextSmall: {
-        fontSize: 15,
     }
 })
 

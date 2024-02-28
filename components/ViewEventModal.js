@@ -7,8 +7,6 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
     if (!event)
         return null;
 
-    console.log(event);
-
     const onClose = () => {
         setShow(false);
         setEvent(null);
