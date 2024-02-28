@@ -9,7 +9,6 @@ import SettingsContext from "../contexts/SettingsContext";
 
 function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit, setShowView }) {
     const today = new Date();
-
     const [description, setDescription] = useState("");
     const [date, setDate] = useState(today);
     const [openDatePicker, setOpenDatePicker] = useState(false);
@@ -128,8 +127,12 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     }
 
     const onClose = () => {
-        setEventToEdit(null);
-        setShow(false);
+        if (eventToEdit) {
+            onCancelEdit();
+        } else {
+            setEventToEdit(null);
+            setShow(false);
+        }
     }
 
     const onNotificationDaysChange = text => {
@@ -169,11 +172,11 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     }
 
     return (
-        <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose}>
+        <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose} useNativeDriver={true} >
             <View style={styles.centeredView} behavior="height">
                 <View style={styles.modalTitleView}>
                     <Text style={styles.modalTitleText}>{eventToEdit ? "Edit event" : "Add event"}</Text>
-                    <Pressable onPress={onClose}>
+                    <Pressable onPress={onClose} hitSlop={20}>
                         <Icon name="close" size={25} color="white"></Icon>
                     </Pressable>
                 </View>
@@ -329,11 +332,11 @@ const styles = StyleSheet.create({
     },
     formTextInputView: {
         backgroundColor: Colours.secondary,
-        width: "100%",
         borderRadius: 5,
+        width: "100%",
         padding: "3%",
         paddingTop: "1%",
-        paddingBottom: "1%"
+        paddingBottom: "1%",
     },
     formDateInputView: {
         backgroundColor: Colours.secondary,

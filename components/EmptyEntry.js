@@ -1,10 +1,11 @@
 import { StyleSheet } from "react-native";
 import { View, Text } from "react-native";
+import { Colours } from "../common";
 
 function EmptyEntry() {
     return (
         <View style={styles.emptyView}>
-            <Text style={styles.emptyText}>No events for this date.</Text>
+            <Text style={styles.emptyText}>No events for today.</Text>
         </View>
     )
 }
@@ -15,15 +16,17 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
-        backgroundColor: "#cccccc",
-        opacity: 1,
-        padding: "2%",
-        height: 60,
         borderRadius: 10,
-        marginBottom: "2%"
+        marginBottom: "2%",
+        marginLeft: "3%",
+        marginRight: "3%",
+        padding: "2%",
+        backgroundColor: Colours.secondaryVariant,
+        height: 80,
     },
     emptyText: {
-        color: "#8c8c8c",
+        color: Colours.inactive,
+        fontWeight: "bold",
         fontSize: 20,
     }
 });

@@ -54,10 +54,11 @@ function Settings() {
                 </Text>
             </View>
             <View style={styles.formRowView}>
-                <Picker style={styles.formPicker} selectedValue={location} onValueChange={newLocation => onLocationChange(newLocation)}>
-                    {Countries.list.map((c, i) => <Picker.Item style={styles.formPickerItem} key={i} label={c.name} value={c.code} />)}
-                </Picker>
-
+                <View style={styles.formPicker}>
+                    <Picker selectedValue={location} onValueChange={newLocation => onLocationChange(newLocation)}>
+                        {Countries.list.map((c, i) => <Picker.Item style={styles.formPickerItem} key={i} label={c.name} value={c.code} />)}
+                    </Picker>
+                </View>
             </View>
             <View style={styles.formRowView}>
                 <Text style={styles.formTextSublabelText}>
@@ -72,10 +73,13 @@ function Settings() {
                 </Text>
             </View>
             <View style={styles.formRowView}>
-                <Picker style={styles.formPicker} selectedValue={timeFormat} onValueChange={newTimeFormat => onTimeFormatChange(newTimeFormat)}>
-                    <Picker.Item style={styles.formPickerItem} label="12 hours" value="12" />
-                    <Picker.Item style={styles.formPickerItem} label="24 hours" value="24" />
-                </Picker>
+                <View style={styles.formPicker}>
+                    <Picker selectedValue={timeFormat} onValueChange={newTimeFormat => onTimeFormatChange(newTimeFormat)}>
+                        <Picker.Item style={styles.formPickerItem} label="12 hours" value="12" />
+                        <Picker.Item style={styles.formPickerItem} label="24 hours" value="24" />
+                    </Picker>
+                </View>
+
             </View>
             <View style={styles.formRowView}>
                 <Text style={styles.formTextSublabelText}>
@@ -135,6 +139,7 @@ const styles = StyleSheet.create({
     formPicker: {
         backgroundColor: Colours.secondary,
         elevation: 20,
+        borderRadius: 5,
         shadowColor: "black",
         shadowOpacity: 1,
         shadowRadius: 4,

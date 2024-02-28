@@ -10,6 +10,7 @@ import ViewEventModal from "./ViewEventModal";
 import SettingsContext from "../contexts/SettingsContext";
 import Holidays from "date-holidays";
 import HolidayEventEntry from "./HolidayEventEntry";
+import EmptyEntry from "./EmptyEntry";
 
 function CalendarList() {
     const [groupedEventList, setGroupedEventList] = useState([]);
@@ -21,6 +22,7 @@ function CalendarList() {
     const settingsContext = useContext(SettingsContext);
 
     const today = new Date();
+    const todayStr = getDateString(today);
 
     const loadContent = async () => {
         try {
@@ -28,14 +30,10 @@ function CalendarList() {
 
             // Load holidays
             const location = settingsContext.location;
-            console.log("For: " + location);
             const hd = new Holidays(location);
             const limit = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000); // Adding 30 days to today
             for (let day = new Date(today); day <= limit; day.setDate(day.getDate() + 1)) {
                 const holidays = hd.isHoliday(day);
-                console.log("For date: " + day.toString());
-                console.log("Holidays:");
-                console.log(holidays);
                 if (holidays) {
                     for (const h of holidays) {
                         const e = { date: day.toISOString(), description: h.name, type: "holiday" };
@@ -61,6 +59,10 @@ function CalendarList() {
                     groupedList.push(group);
                 }
                 group.data.push(e);
+            }
+
+            if (!groupedList.find(e => e.title === todayStr)) {
+                groupedList.push({ title: todayStr, data: [] });
             }
 
             groupedList.sort((a, b) => a.title.localeCompare(b.title));
@@ -157,26 +159,22 @@ function CalendarList() {
     return (
         <>
             <View style={styles.listView}>
-                {/* Today */}
-                <CalendarDate date={today} large={true} />
-                {groupedEventList.find(elem => elem.title === getDateString(today))?.data.map(
-                    (item, index) =>
-                        item.type === "user" ?
-                            <EventEntry key={index} event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} large={true} />
-                            :
-                            <HolidayEventEntry key={index} event={item} large={true} />
-                )}
-                {/* Today + 1 to infinite */}
                 <SectionList
-                    sections={groupedEventList.filter(elem => elem.title !== getDateString(today))}
+                    sections={groupedEventList}
                     keyExtractor={(e, i) => i}
-                    renderItem={({ item }) =>
+                    renderItem={({ item, section }) =>
                         item.type === "user" ?
-                            <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} large={false} />
+                            <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} large={section.title === todayStr} />
                             :
-                            <HolidayEventEntry event={item} large={false} />
+                            <HolidayEventEntry event={item} large={section.title === todayStr} />
                     }
-                    renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} large={false} /> : null}
+                    renderSectionHeader={({ section }) => section.data.length > 0 || section.title === todayStr ? 
+                        <>
+                            <CalendarDate date={new Date(section.title)} large={section.title === todayStr} />
+                            { section.data.length === 0 && <EmptyEntry /> }
+                        </>
+                        : null
+                    }
                     refreshing={loading}
                 />
             </View>
@@ -189,7 +187,7 @@ function CalendarList() {
 
 const styles = StyleSheet.create({
     listView: {
-        marginTop: "3%"
+
     }
 });
 

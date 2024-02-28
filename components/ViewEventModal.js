@@ -36,11 +36,11 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
     notificationDate.setMinutes(notificationDate.getMinutes() - event.notificationMinOffset);
 
     return (
-        <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose}>
+        <Modal visible={show} animationType="fade" transparent={true} onRequestClose={onClose} useNativeDriver={true} >
             <View style={styles.centeredView} behavior="height">
                 <View style={styles.modalTitleView}>
                     <Text style={styles.modalTitleText}>Event</Text>
-                    <Pressable onPress={onClose}>
+                    <Pressable onPress={onClose} hitSlop={20}>
                         <Icon name="close" size={25} color="white"></Icon>
                     </Pressable>
                 </View>

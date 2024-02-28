@@ -136,7 +136,8 @@ export const scheduleEventNotification = (event, timeFormat) => {
             importance: Importance.HIGH,
             priority: "high",
             playSound: true,
-            soundName: "default"
+            soundName: "default",
+            largeIcon: "",
         });
         return true;
     }

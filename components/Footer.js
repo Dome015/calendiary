@@ -10,14 +10,13 @@ function Footer({ state, navigation }) {
 
     return (
         <View style={[styles.footerView, styles.elevation]}>
-            <FooterButton navigation={navigation} route="Home" currentRoute={currentRoute} icon="calendar" activeColor={Colours.main} inactiveColor={Colours.inactive} />
+            <FooterButton navigation={navigation} route="Home" currentRoute={currentRoute} icon="calendar-month" activeColor={Colours.main} inactiveColor={Colours.inactive} />
             <FooterButton navigation={navigation} route="Settings" currentRoute={currentRoute} icon="settings" activeColor={Colours.main} inactiveColor={Colours.inactive} />
         </View>
     )
 }
 
 function FooterButton({ navigation, route, params, currentRoute, icon, activeColor, inactiveColor }) {
-
     return (
         <Pressable style={styles.footerPressable} onPress={() => navigation.navigate(route, params)}>
             { icon === "settings" && <MCIcon name={icon} size={40} color={currentRoute === route ? activeColor : inactiveColor} /> }
