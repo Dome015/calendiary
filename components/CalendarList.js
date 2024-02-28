@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import AddEventModal from "./AddEventModal";
 import { deleteEventById, getEventsFromToday } from "../db/database";
 import { getDateString, unscheduleEventNotification } from "../common";
-import { SectionList, StyleSheet, View } from "react-native";
+import { SectionList, StyleSheet, ToastAndroid, View } from "react-native";
 import EventEntry from "./EventEntry";
 import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
@@ -70,6 +70,7 @@ function CalendarList() {
             setLoading(false);
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 
@@ -92,8 +93,10 @@ function CalendarList() {
                 entry.data = entry.data.filter(el => el.id !== event.id);
                 return newGroupList;
             });
+            ToastAndroid.showWithGravity("Event deleted", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 
@@ -113,8 +116,10 @@ function CalendarList() {
                 newGroupList.sort((a, b) => a.title.localeCompare(b.title));
                 return newGroupList;
             });
+            ToastAndroid.showWithGravity("Event added", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 
@@ -138,11 +143,11 @@ function CalendarList() {
                     let newGroup = newGroupList.find(elem => elem.title === getDateString(new Date(event.date)));
                     if (!newGroup) {
                         // The group for this date doesn't currently exist - create it with the new event
-                        newGroup = { title: getDateString(new Date(event.date)), data: [{ ...event, type: "normal" }] };
+                        newGroup = { title: getDateString(new Date(event.date)), data: [{ ...event, type: "user" }] };
                         newGroupList.push(newGroup);
                     } else {
                         // The group for this date already exists - add the new event
-                        newGroup.data.push({ ...event, type: "normal" });
+                        newGroup.data.push({ ...event, type: "user" });
                         newGroup.data.sort((a, b) => a.date.localeCompare(b.date));
                     }
                 }
@@ -151,8 +156,10 @@ function CalendarList() {
             });
             // Reset event to edit
             setEventToEdit(null);
+            ToastAndroid.showWithGravity("Event edited", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 

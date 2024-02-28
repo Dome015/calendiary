@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, ToastAndroid, View } from "react-native";
 import { Colours, Countries, getFormattedTime } from "../common";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { useFocusEffect } from "@react-navigation/native";
@@ -28,6 +28,7 @@ function Settings() {
             updateSetting({ name: "location", value: newLocation });
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 
@@ -41,6 +42,7 @@ function Settings() {
             updateSetting({ name: "timeFormat", value: newTimeFormat });
         } catch (e) {
             console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
     }
 

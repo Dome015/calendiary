@@ -7,9 +7,6 @@ import FormButton from "./FormButton";
 function AddEventButton({ onPress }) {
     return (
         <View style={styles.addButtonView}>
-            {/* <Icon.Button name="add" size={25} style={styles.elevation} backgroundColor={Colours.main} color={Colours.secondary} onPress={onPress}>
-                <Text style={styles.addButtonText}>New event</Text>
-            </Icon.Button> */}
             <FormButton onPress={onPress} text="Add event" icon="plus" />
         </View>
     );

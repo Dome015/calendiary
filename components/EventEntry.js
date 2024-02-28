@@ -1,4 +1,4 @@
-import { View, Text, Pressable } from "react-native";
+import { View, Text, Pressable, ToastAndroid } from "react-native";
 import { StyleSheet } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
@@ -12,26 +12,32 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress, large }) {
     const settingsContext = useContext(SettingsContext)
 
     const toggleNotification = () => {
-        const newEvent = {...event};
-        newEvent.notification = !event.notification;
-        if (newEvent.notification)
-            scheduleEventNotification(newEvent, settingsContext.timeFormat);
-        else
-            unscheduleEventNotification(newEvent);
-        // Update db
-        updateEvent(newEvent);
-        // Update state
-        setGroupedEventList(oldGroupList => {
-            const groupList = [...oldGroupList];
-            const group = groupList.find(elem => elem.title === getDateString(new Date(newEvent.date)));
-            for (let i = 0; i < group.data.length; i++) {
-                if (group.data[i].id === newEvent.id) {
-                    group.data[i] = newEvent;
-                    break;
+        try {
+            const newEvent = {...event};
+            newEvent.notification = !event.notification;
+            if (newEvent.notification)
+                scheduleEventNotification(newEvent, settingsContext.timeFormat);
+            else
+                unscheduleEventNotification(newEvent);
+            // Update db
+            updateEvent(newEvent);
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                const groupList = [...oldGroupList];
+                const group = groupList.find(elem => elem.title === getDateString(new Date(newEvent.date)));
+                for (let i = 0; i < group.data.length; i++) {
+                    if (group.data[i].id === newEvent.id) {
+                        group.data[i] = newEvent;
+                        break;
+                    }
                 }
-            }
-            return groupList;
-        });
+                return groupList;
+            });
+        } catch (e) {
+            console.log(e);
+            ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
+        }
+        
     }
 
     return (

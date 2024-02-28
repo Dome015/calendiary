@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, ToastAndroid, View } from 'react-native';
 import * as db from './db/database';
 import React, { useEffect, useState } from 'react';
 import CalendarList from './components/CalendarList';
@@ -37,11 +37,18 @@ export default function App() {
   const [timeFormat, setTimeFormat] = useState("12");
 
   const onStartup = async () => {
-    await db.initDatabase();
-    const dbLocation = await db.getSettingByName("location");
-    setLocation(dbLocation.value);
-    const dbTimeLocation = await db.getSettingByName("timeFormat");
-    setTimeFormat(dbTimeLocation.value);
+    try {
+      await db.initDatabase();
+      const dbLocation = await db.getSettingByName("location");
+      console.log(dbLocation)
+      setLocation(dbLocation.value);
+      const dbTimeLocation = await db.getSettingByName("timeFormat");
+      console.log(dbTimeLocation)
+      setTimeFormat(dbTimeLocation.value);
+    } catch (e) {
+      console.log(e);
+      ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
+    }
   }
 
   useEffect(() => {
