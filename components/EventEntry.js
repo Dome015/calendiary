@@ -54,11 +54,11 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         alignItems: "center",
         backgroundColor: Colours.secondary,
-        padding: "5%",
         borderRadius: 10,
         marginBottom: "2%",
         marginLeft: "3%",
-        marginRight: "3%"
+        marginRight: "3%",
+        padding: "2%"
     },
     emptyText: {
         color: Colours.dark,

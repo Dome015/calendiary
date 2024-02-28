@@ -10,8 +10,8 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
     console.log(event);
 
     const onClose = () => {
-        setEvent(null);
         setShow(false);
+        setEvent(null);
     }
 
     const onEdit = () => {
@@ -19,11 +19,16 @@ function ViewEventModal({ event, setEvent, show, setShow, setShowEdit, onDelete 
         setShowEdit(true);
     }
 
+    const onDeleteConfirm = () => {
+        setShow(false);
+        onDelete(event);
+    }
+
     const createDeleteAlert = () => {
         Alert.alert("Delete event", `Are you sure you want to delete this event?`,
             [
                 { text: "No", style: "cancel" },
-                { text: "Yes", onPress: () => onDelete(event) },
+                { text: "Yes", onPress: onDeleteConfirm },
             ]
         )
     };

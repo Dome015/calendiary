@@ -8,6 +8,8 @@ import CalendarDate from "./CalendarDate";
 import AddEventButton from "./AddEventButton";
 import ViewEventModal from "./ViewEventModal";
 import SettingsContext from "../contexts/SettingsContext";
+import Holidays from "date-holidays";
+import HolidayEventEntry from "./HolidayEventEntry";
 
 function CalendarList() {
     const [groupedEventList, setGroupedEventList] = useState([]);
@@ -20,8 +22,35 @@ function CalendarList() {
 
     const loadContent = async () => {
         try {
-            const list = await getEventsFromToday();
             const groupedList = [];
+            // Load holidays
+            const hd = new Holidays(settingsContext.location);
+            const day = new Date();
+            const limit = new Date();
+            limit.setDate(limit.getDate() + 60);
+            while (day.getTime() <= limit.getTime()) {
+                const holidays = hd.isHoliday(day);
+                if (holidays) {
+                    console.log(day);
+                    console.log(holidays);
+                    for (const h of holidays) {
+                        const e = { date: day.toISOString(), description: h.name, type: "holiday" };
+                        console.log(e);
+                        const group = groupedList.find(item => item.title === getDateString(day));
+                        if (!group) {
+                            groupedList.push(
+                                { title: getDateString(day), data: [e] }
+                            );
+                        } else {
+                            group.data.push(e);
+                        }
+                    }
+                }
+                day.setDate(day.getDate() + 1);
+            }
+            // Load user events
+            let list = await getEventsFromToday();
+            list = list.map(e => ({...e, type: "user"}));
             for (const e of list) {
                 const group = groupedList.find(item => item.title === getDateString(new Date(e.date)));
                 if (!group) {
@@ -32,6 +61,7 @@ function CalendarList() {
                     group.data.push(e);
                 }
             }
+            groupedList.sort((a, b) => a.title.localeCompare(b.title));
             setGroupedEventList(groupedList);
             setLoading(false);
         } catch (e) {
@@ -45,8 +75,9 @@ function CalendarList() {
 
     const onDelete = async (event) => {
         try {
+            setEventToEdit(null);
             // Update database
-            await deleteEventById(event.id);
+            deleteEventById(event.id);
             // Unschedule notification
             unscheduleEventNotification(event, settingsContext.timeFormat);
             // Update state
@@ -56,8 +87,6 @@ function CalendarList() {
                 entry.data = entry.data.filter(el => el.id !== event.id);
                 return newGroupList;
             });
-            setShowViewModal(false);
-            setEventToEdit(null);
         } catch (e) {
             console.log(e);
         }
@@ -71,11 +100,12 @@ function CalendarList() {
                 const newGroupList = [...oldGroupList];
                 const group = newGroupList.find(elem => elem.title === getDateString(new Date(event.date)));
                 if (!group) {
-                    newGroupList.push({ title: getDateString(new Date(event.date)), data: [event] });
+                    newGroupList.push({ title: getDateString(new Date(event.date)), data: [{ ...event, type: "normal" }] });
                 } else {
-                    group.data.push(event);
+                    group.data.push({ ...event, type: "normal" });
                     group.data.sort((a, b) => a.date.localeCompare(b.date));
                 }
+                newGroupList.sort((a, b) => a.title.localeCompare(b.title));
                 return newGroupList;
             });
         } catch (e) {
@@ -100,18 +130,18 @@ function CalendarList() {
                 } else {
                     let group = newGroupList.find(elem => elem.title === getDateString(new Date(eventToEdit.date)));
                     group.data = group.data.filter(elem => elem.id !== eventToEdit.id);
-                    console.log(group.data);
                     let newGroup = newGroupList.find(elem => elem.title === getDateString(new Date(event.date)));
                     if (!newGroup) {
                         // The group for this date doesn't currently exist - create it with the new event
-                        newGroup = { title: getDateString(new Date(event.date)), data: [event] };
+                        newGroup = { title: getDateString(new Date(event.date)), data: [{ ...event, type: "normal" }] };
                         newGroupList.push(newGroup);
                     } else {
                         // The group for this date already exists - add the new event
-                        newGroup.data.push(event);
+                        newGroup.data.push({ ...event, type: "normal" });
                         newGroup.data.sort((a, b) => a.date.localeCompare(b.date));
                     }
                 }
+                newGroupList.sort((a, b) => a.title.localeCompare(b.title));
                 return newGroupList;
             });
             // Reset event to edit
@@ -127,7 +157,12 @@ function CalendarList() {
                 <SectionList
                     sections={groupedEventList}
                     keyExtractor={(e, i) => i}
-                    renderItem={({ item }) => <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />}
+                    renderItem={({ item }) =>
+                        item.type === "user" ?
+                        <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} />
+                        :
+                        <HolidayEventEntry event={item}/>
+                    }
                     renderSectionHeader={({ section }) => section.data.length > 0 ? <CalendarDate date={new Date(section.title)} /> : null}
                     refreshing={loading}
                 />

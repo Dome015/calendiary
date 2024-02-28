@@ -58,6 +58,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     }
 
     const onAddEvent = async () => {
+        setShow(false);
         try {
             // Compute notification minute offset
             const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
@@ -82,10 +83,10 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
         } catch (e) {
             console.log(e);
         }
-        setShow(false);
     }
 
     const onEditEvent = async () => {
+        setShow(false);
         try {
             // Compute notification minute offset
             const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
@@ -109,7 +110,6 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
         } catch (e) {
             console.log(e);
         }
-        setShow(false);
     }
 
     const onCancelEdit = () => {
