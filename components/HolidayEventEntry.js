@@ -3,8 +3,8 @@ import { Colours } from "../common";
 
 function HolidayEventEntry({ event, large }) {
     return ( 
-        <View style={[styles.entryView, large ? { height: 80 } : { height: 60 }]}>
-            <View><Text style={styles.entryText}>{event.description}</Text></View>
+        <View style={styles.entryView}>
+            <View><Text style={[styles.entryText, large ? styles.entryTextLarge : styles.entryTextNormal]}>{event.description}</Text></View>
             <View><Text style={styles.timeText}>Holiday</Text></View>
         </View>
      );
@@ -34,18 +34,22 @@ const styles = StyleSheet.create({
     },
     entryText: {
         color: Colours.inactive,
-        fontSize: 20,
         fontWeight: "bold",
     },
+    entryTextLarge: {
+        fontSize: 20,
+    },
+    entryTextNormal: {
+        fontSize: 16,
+    },  
     entryPressable: {
-        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent:"space-between"
     },
     timeText: {
         color: Colours.inactive,
-        fontSize: 10,
+        fontSize: 12,
     },
 })
 

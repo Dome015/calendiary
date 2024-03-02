@@ -68,11 +68,10 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress, large, loading 
         <View style={[
             styles.emptyView,
             styles.elevation,
-            large ? { height: 90 } : { height: 80 },
             { backgroundColor: pressed ? blendColors(Colours.secondary, "#000000", 0.2) : Colours.secondary }]}
         >
             <Pressable style={[{ flex: 0.9 }, styles.entryPressable]} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} onPress={() => loading ? {} : onMiddlePress(event)}>
-                <View><Text style={styles.emptyText}>{shownDescription}</Text></View>
+                <View><Text style={[styles.emptyText, large ? styles.emptyTextLarge : styles.emptyTextNormal]}>{shownDescription}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date), settingsContext.timeFormat)}</Text></View>
             </Pressable>
             <Pressable style={{ flex: 0.1 }} onPress={toggleNotification}>
@@ -98,11 +97,15 @@ const styles = StyleSheet.create({
     },
     emptyText: {
         color: Colours.dark,
-        fontSize: 16,
         fontWeight: "bold",
     },
+    emptyTextLarge: {
+        fontSize: 20,
+    },
+    emptyTextNormal: {
+        fontSize: 16,
+    },
     entryPressable: {
-        height: "100%",
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
@@ -110,7 +113,7 @@ const styles = StyleSheet.create({
     },
     timeText: {
         color: Colours.dark,
-        fontSize: 10,
+        fontSize: 12,
     },
     deleteView: {
         display: "flex",

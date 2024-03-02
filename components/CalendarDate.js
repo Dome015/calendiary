@@ -8,7 +8,7 @@ function CalendarDate({ date, large }) {
 
     return (
         <View style={styles.dateView}>
-            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }, large ? { fontSize: 30 } : { fontSize: 20 }]}>{getFormattedDate(date)}</Text>
+            <Text style={[styles.dateText, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }, large ? { fontSize: 22 } : { fontSize: 18 }]}>{getFormattedDate(date)}</Text>
             <Text style={[styles.dateTextSmall, { color: isRed(date, settingsContext.location) ? Colours.danger : Colours.main }, large ? { fontSize: 15 } : { fontSize: 15 }]}>{getDayOfWeekName(date)}</Text>
         </View>
     );

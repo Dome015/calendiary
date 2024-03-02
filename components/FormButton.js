@@ -41,7 +41,7 @@ const styles = StyleSheet.create({
         height: 50
     },
     buttonText: {
-        fontSize: 20
+        fontSize: 18
     }
 });
 

@@ -207,7 +207,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
 
                     <View style={styles.formRowView}>
                         <View style={styles.formTextInputView}>
-                            <TextInput style={styles.formTextInput} placeholderTextColor={Colours.inactive} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
+                            <TextInput style={styles.formTextInput} placeholderTextColor={Colours.inactive} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline maxLength={500} />
                         </View>
                     </View>
                     {emptyDescriptionError && description.trim().length === 0 &&
@@ -373,6 +373,7 @@ const styles = StyleSheet.create({
         padding: "3%",
         paddingTop: "1%",
         paddingBottom: "1%",
+        height: 70,
     },
     formDateInputView: {
         backgroundColor: Colours.secondary,
@@ -382,20 +383,20 @@ const styles = StyleSheet.create({
         borderRadius: 5,
     },
     formTextLabelText: {
-        fontSize: 20,
+        fontSize: 18,
         color: Colours.dark
     },
     formTextLabelSmallText: {
-        fontSize: 17,
+        fontSize: 15,
         color: Colours.dark,
     },
     formTextInput: {
         backgroundColor: Colours.secondary,
         color: Colours.dark,
-        fontSize: 20,
+        fontSize: 18,
     },
     formSmallTextInput: {
-        fontSize: 17,
+        fontSize: 16,
     },
     formErrorText: {
         fontSize: 15,
