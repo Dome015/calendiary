@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     emptyText: {
         color: Colours.inactive,
         fontWeight: "bold",
-        fontSize: 20,
+        fontSize: 18,
     }
 });
 

@@ -86,12 +86,23 @@ function CalendarList() {
         setLoading(true);
         try {
             setEventToEdit(null);
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                let newGroupList = [...oldGroupList];
+                const targetTitle = getDateString(new Date(event.date));
+                const targetId = event.id;
+                let targetGroup = newGroupList.find(elem => elem.title === targetTitle);
+                targetGroup.data = targetGroup.data.filter(e => e.id !== targetId);
+                // If there are no more user events for this date, remove it
+                if (targetGroup.title !== getDateString(today) && targetGroup.data.filter(e => e.type === "user").length === 0) {
+                    newGroupList = newGroupList.filter(elem => elem.title !== targetTitle);
+                }
+                return newGroupList;
+            });
             // Update database
-            await deleteEventById(event.id);
+            deleteEventById(event.id);
             // Unschedule notification
             unscheduleEventNotification(event, settingsContext.timeFormat);
-            // Reload content
-            loadContent();
             ToastAndroid.showWithGravity("Event deleted", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
@@ -104,21 +115,50 @@ function CalendarList() {
     const onAdd = async (event) => {
         setLoading(true);
         try {
-            // Add event to db
             const newEvent = {
                 description: event.description,
-                date: event.date,
+                date: event.date.toISOString(),
                 notification: event.notification,
                 notificationMinOffset: event.notificationMinOffset,
             };
-            const eventId = await insertEvent(newEvent);
-            newEvent.id = eventId;
+            const idFlag = Date.now();
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                let newGroupList = [...oldGroupList];
+                const targetTitle = getDateString(event.date);
+                // If group doesn't exist, create it
+                let group = newGroupList.find(elem => elem.title === targetTitle);
+                if (!group) {
+                    group = { title: targetTitle, data: [] };
+                    // Check for holidays
+                    if (event.date > holidayLimit) {
+                        const holidays = getHolidays(event.date, settingsContext.location);
+                        if (holidays) {
+                            group.data.push({ description: holidays, date: today.toISOString(), type: "holiday" });
+                        }
+                    }
+                    newGroupList.push(group);
+                }
+                const eventToPush = {...newEvent, type: "user" };
+                eventToPush.id = -idFlag;
+                group.data.push(eventToPush);
+                return newGroupList;
+            });
+            // Add event to db, and update id on the state when done
+            insertEvent(newEvent).then(eventId => {
+                setGroupedEventList(oldGroupList => {
+                    let newGroupList = [...oldGroupList];
+                    let group = newGroupList.find(elem => elem.title === getDateString(event.date));
+                    let oldEvent = group.data.find(e => e.id === -idFlag);
+                    oldEvent.id = eventId;
+                    return newGroupList;
+                });
+            });
             // Schedule notification if necessary
             if (newEvent.notification) {
                 scheduleEventNotification(newEvent, settingsContext.timeFormat);
             }
-            // Reload content
-            loadContent();
+            // Toast
             ToastAndroid.showWithGravity("Event added", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);

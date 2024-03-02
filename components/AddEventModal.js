@@ -88,7 +88,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
             // Handle addition
             const event = {
                 description: description,
-                date: date.toISOString(),
+                date: date,
                 notification: notification,
                 notificationMinOffset: notificationMinOffset,
             };

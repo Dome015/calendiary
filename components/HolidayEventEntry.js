@@ -21,7 +21,7 @@ const styles = StyleSheet.create({
         marginBottom: "2%",
         marginLeft: "3%",
         marginRight: "3%",
-        padding: "2%",
+        padding: "4%",
         elevation: 20,
         shadowColor: "black",
         shadowOpacity: 1,
@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
     entryPressable: {
         display: "flex",
         flexDirection: "column",
-        justifyContent:"space-between"
+        justifyContent:"space-between",
     },
     timeText: {
         color: Colours.inactive,
