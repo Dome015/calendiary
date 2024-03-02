@@ -162,7 +162,7 @@ function CalendarList() {
                         item.type === "user" ?
                             <EventEntry event={item} setGroupedEventList={setGroupedEventList} onMiddlePress={onEventView} large={section.title === todayStr} loading={loading}/>
                             :
-                            <HolidayEventEntry event={item} large={section.title === todayStr} loading={loading} />
+                            <HolidayEventEntry event={item} large={section.title === todayStr} />
                     }
                     renderSectionHeader={({ section }) => section.data.length > 0 || section.title === todayStr ? 
                         <>

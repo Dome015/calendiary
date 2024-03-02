@@ -1,9 +1,9 @@
 import { StyleSheet, View, Text } from "react-native";
 import { Colours } from "../common";
 
-function HolidayEventEntry({ event, large, loading }) {
+function HolidayEventEntry({ event, large }) {
     return ( 
-        <View style={[styles.entryView, loading ? styles.loadingView : {}, large ? { height: 80 } : { height: 60 }]}>
+        <View style={[styles.entryView, large ? { height: 80 } : { height: 60 }]}>
             <View><Text style={styles.entryText}>{event.description}</Text></View>
             <View><Text style={styles.timeText}>Holiday</Text></View>
         </View>
@@ -11,9 +11,6 @@ function HolidayEventEntry({ event, large, loading }) {
 }
 
 const styles = StyleSheet.create({
-    loadingView: {
-        opacity: 0.75
-    },
     entryView: {
         display: "flex",
         flexDirection: "column",
@@ -36,7 +33,7 @@ const styles = StyleSheet.create({
         },
     },
     entryText: {
-        color: Colours.dark,
+        color: Colours.inactive,
         fontSize: 20,
         fontWeight: "bold",
     },
@@ -47,7 +44,7 @@ const styles = StyleSheet.create({
         justifyContent:"space-between"
     },
     timeText: {
-        color: Colours.dark,
+        color: Colours.inactive,
         fontSize: 10,
     },
 })
