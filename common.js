@@ -79,7 +79,7 @@ export const getYear = date => 1900 + date.getYear();
  * based on the given location.
  * @param {Date} date 
  * @param {string} location
- * @returns {string}
+ * @returns {string|boolean}
  */
 export const getHolidays = (date, location) => {
     const hd = new Holidays();

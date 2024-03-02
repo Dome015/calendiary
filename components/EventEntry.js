@@ -2,16 +2,25 @@ import { View, Text, Pressable, ToastAndroid } from "react-native";
 import { StyleSheet } from "react-native";
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { updateEvent } from "../db/database";
-import { Colours, blendColors, getDateString, getFormattedTime, scheduleEventNotification, unscheduleEventNotification } from "../common";
+import { Colours, blendColors, getDateString, getDhm, getFormattedDateTime, getFormattedTime, scheduleEventNotification, unscheduleEventNotification } from "../common";
 import { useContext, useState } from "react";
 import SettingsContext from "../contexts/SettingsContext";
 
-function EventEntry({ event, setGroupedEventList, onMiddlePress, large }) {
+function EventEntry({ event, setGroupedEventList, onMiddlePress, large, loading }) {
     const [pressed, setPressed] = useState(false);
 
     const settingsContext = useContext(SettingsContext)
 
+    const notificationIsInThePast = () => {
+        // Check for past notification
+        const notificationTargetDate = new Date(event.date);
+        notificationTargetDate.setMinutes(notificationTargetDate.getMinutes() - event.notificationMinOffset);
+        return notificationTargetDate <= new Date();
+    }
+
     const toggleNotification = () => {
+        if (loading || notificationIsInThePast())
+            return;
         try {
             const newEvent = {...event};
             newEvent.notification = !event.notification;
@@ -33,6 +42,13 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress, large }) {
                 }
                 return groupList;
             });
+            let toastMsg = "Notification removed";
+            if (newEvent.notification) {
+                const notificationDate = new Date(newEvent.date);
+                notificationDate.setMinutes(notificationDate.getMinutes() - newEvent.notificationMinOffset);
+                toastMsg = `Notification scheduled for ${getFormattedDateTime(notificationDate)}`;
+            }
+            ToastAndroid.showWithGravity(toastMsg, ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
             ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
@@ -44,23 +60,27 @@ function EventEntry({ event, setGroupedEventList, onMiddlePress, large }) {
         <View style={[
             styles.emptyView,
             styles.elevation,
+            loading ? styles.loadingView : {},
             large ? { height: 80 } : { height: 60 },
             { backgroundColor: pressed ? blendColors(Colours.secondary, "#000000", 0.2) : Colours.secondary }]}
         >
-            <Pressable style={[{ flex: 0.9 }, styles.entryPressable]} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} onPress={() => onMiddlePress(event)}>
+            <Pressable style={[{ flex: 0.9 }, styles.entryPressable]} onPressIn={() => setPressed(true)} onPressOut={() => setPressed(false)} onPress={() => loading ? {} : onMiddlePress(event)}>
                 <View><Text style={styles.emptyText}>{event.description}</Text></View>
                 <View><Text style={styles.timeText}>{getFormattedTime(new Date(event.date), settingsContext.timeFormat)}</Text></View>
             </Pressable>
             <Pressable style={{ flex: 0.1 }} onPress={toggleNotification}>
                 <Icon
                     name={event.notification ? "bell-ring-outline" : "bell-outline"}
-                    color={Colours.dark} size={25} />
+                    color={notificationIsInThePast() ? Colours.inactive : Colours.dark} size={25} />
             </Pressable>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
+    loadingView: {
+        opacity: 0.75
+    },  
     emptyView: {
         display: "flex",
         flexDirection: "row",

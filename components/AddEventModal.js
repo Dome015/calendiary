@@ -1,16 +1,14 @@
 import { useState, useEffect, useContext } from "react";
 import { StyleSheet, View, Text, Modal, Pressable, TextInput, Switch, Alert, ToastAndroid } from "react-native";
-import { Colours, getDhm, getFormattedDate, getFormattedTime, getMinutes, notificationHourOffset, notificationMinuteOffset, scheduleEventNotification } from "../common";
+import { Colours, getDhm, getFormattedDate, getFormattedTime, getMinutes } from "../common";
 import DatePicker from "react-native-date-picker";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
-import { insertEvent, updateEvent } from "../db/database";
 import FormButton from "./FormButton";
 import SettingsContext from "../contexts/SettingsContext";
 
 function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEdit, setShowView }) {
-    const today = new Date();
     const [description, setDescription] = useState("");
-    const [date, setDate] = useState(today);
+    const [date, setDate] = useState(new Date());
     const [openDatePicker, setOpenDatePicker] = useState(false);
     const [openTimePicker, setOpenTimePicker] = useState(false);
     const [notification, setNotification] = useState(true);
@@ -18,6 +16,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     const [notificationDays, setNotificationDays] = useState("");
     const [notificationHours, setNotificationHours] = useState("60");
     const [notificationMins, setNotificationMins] = useState("");
+    const [notificationMinOffset, setNotificationMinOffset] = useState(60);
     // Error checking
     const [emptyDescriptionError, setEmptyDescriptionError] = useState(false);
     const [pastNotificationError, setPastNotificationError] = useState(false);
@@ -32,21 +31,18 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 setDate(new Date(eventToEdit.date));
                 setNotification(eventToEdit.notification);
                 const offsetData = getDhm(eventToEdit.notificationMinOffset);
-                console.log(offsetData);
                 setNotificationDays(offsetData.days.toString());
                 setNotificationHours(offsetData.hours.toString());
                 setNotificationMins(offsetData.minutes.toString());
-                setEmptyDescriptionError(false);
-                setPastNotificationError(false);
             } else {
                 setDescription("");
                 setNotification(true);
                 setNotificationDays("0");
                 setNotificationHours("1");
                 setNotificationMins("0");
-                setEmptyDescriptionError(false);
-                setPastNotificationError(false);
             }
+            setEmptyDescriptionError(false);
+            setPastNotificationError(false);
         } catch (e) {
             console.log(e);
             ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
@@ -54,6 +50,14 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
     }
 
     useEffect(() => reset(), [show]);
+
+    useEffect(() => {
+        // Compute notification minute offset
+        const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
+        const notificationHoursN = notificationHours.length > 0 ? parseInt(notificationHours) : 0;
+        const notificationMinsN = notificationMins.length > 0 ? parseInt(notificationMins) : 0;
+        setNotificationMinOffset(getMinutes(notificationDaysN, notificationHoursN, notificationMinsN));
+    }, [notificationDays, notificationHours, notificationMins])
 
     const onConfirmDatePick = pickedDate => {
         setDate(date =>
@@ -74,33 +78,21 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 setEmptyDescriptionError(true);
                 return;
             }
-            // Compute notification minute offset
-            const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
-            const notificationHoursN = notificationHours.length > 0 ? parseInt(notificationHours) : 0;
-            const notificationMinsN = notificationMins.length > 0 ? parseInt(notificationMins) : 0;
-            const notificationMinOffset = getMinutes(notificationDaysN, notificationHoursN, notificationMinsN);
             // Check for past notification
-            if (notification && notificationIsInThePast(notificationMinOffset)) {
+            if (notification && notificationIsInThePast()) {
                 setPastNotificationError(true);
                 return;
             }
             // Hide modal
             setShow(false);
-            // Add event to db
-            const newEvent = {
+            // Handle addition
+            const event = {
                 description: description,
                 date: date.toISOString(),
                 notification: notification,
                 notificationMinOffset: notificationMinOffset,
             };
-            const eventId = await insertEvent(newEvent);
-            newEvent.id = eventId;
-            // Schedule notification if necessary
-            if (newEvent.notification) {
-                scheduleEventNotification(newEvent, settingsContext.timeFormat);
-            }
-            // Update parent state
-            onAdd(newEvent);
+            onAdd(event);
         } catch (e) {
             console.log(e);
         }
@@ -113,19 +105,14 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 setEmptyDescriptionError(true);
                 return;
             }
-            // Compute notification minute offset
-            const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
-            const notificationHoursN = notificationHours.length > 0 ? parseInt(notificationHours) : 0;
-            const notificationMinsN = notificationMins.length > 0 ? parseInt(notificationMins) : 0;
-            const notificationMinOffset = getMinutes(notificationDaysN, notificationHoursN, notificationMinsN);
             // Check for past notification
-            if (notification && notificationIsInThePast(notificationMinOffset)) {
+            if (notification && notificationIsInThePast()) {
                 setPastNotificationError(true);
                 return;
             }
             // Hide modal
             setShow(false);
-            // Edit event on the db
+            // Handle update
             const newEvent = {
                 id: eventToEdit.id,
                 description: description,
@@ -133,11 +120,6 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                 notification: notification,
                 notificationMinOffset: notificationMinOffset
             };
-            updateEvent(newEvent);
-            // Schedule notification if necessary
-            if (newEvent.notification)
-                scheduleEventNotification(newEvent, settingsContext.timeFormat);
-            // Update parent state
             onEdit(newEvent);
         } catch (e) {
             console.log(e);
@@ -204,21 +186,11 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
         }
     }
 
-    const notificationIsInThePast = (offsetMinutes = null) => {
-        // The current offset can optionally be passed as an argument,
-        // or calculated on the go
-        let notificationMinOffset = offsetMinutes;
-        if (!notificationMinOffset) {
-            // Compute notification minute offset
-            const notificationDaysN = notificationDays.length > 0 ? parseInt(notificationDays) : 0;
-            const notificationHoursN = notificationHours.length > 0 ? parseInt(notificationHours) : 0;
-            const notificationMinsN = notificationMins.length > 0 ? parseInt(notificationMins) : 0;
-            notificationMinOffset = getMinutes(notificationDaysN, notificationHoursN, notificationMinsN);
-        }
+    const notificationIsInThePast = () => {
         // Check for past notification
         const notificationTargetDate = new Date(date);
         notificationTargetDate.setMinutes(notificationTargetDate.getMinutes() - notificationMinOffset);
-        return notificationTargetDate <= today;
+        return notificationTargetDate <= new Date();
     }
 
     return (
@@ -238,10 +210,10 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                             <TextInput style={styles.formTextInput} placeholderTextColor={Colours.inactive} placeholder="Description" value={description} onChangeText={text => setDescription(text)} multiline />
                         </View>
                     </View>
-                    { emptyDescriptionError && description.trim().length === 0 &&
-                    <View style={styles.formRowView}>
-                        <Text style={styles.formErrorText}>Description cannot be empty</Text>
-                    </View>
+                    {emptyDescriptionError && description.trim().length === 0 &&
+                        <View style={styles.formRowView}>
+                            <Text style={styles.formErrorText}>Description cannot be empty</Text>
+                        </View>
                     }
 
                     <View style={styles.formRowView}>
@@ -273,53 +245,53 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
                         </View>
                     </View>
                     {/* Notification offset pick */}
-                    { notification &&
-                    <View style={styles.formRowView}>
-                        <View style={{ flex: 0.2 }}>
-                        <View style={styles.formSmallTextInputView}>
-                            <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationDays.toString()} onChangeText={onNotificationDaysChange} keyboardType="number-pad" />
+                    {notification &&
+                        <View style={styles.formRowView}>
+                            <View style={{ flex: 0.2 }}>
+                                <View style={styles.formSmallTextInputView}>
+                                    <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationDays.toString()} onChangeText={onNotificationDaysChange} keyboardType="number-pad" />
+                                </View>
                             </View>
-                        </View>
-                        <View style={{ flex: 0.05, marginStart: "2%" }}>
+                            <View style={{ flex: 0.05, marginStart: "2%" }}>
                                 <Text style={styles.formTextLabelSmallText}>d</Text>
-                        </View>
+                            </View>
 
-                        <View style={{ flex: 0.2, marginStart: "2%" }}>
-                            <View style={styles.formSmallTextInputView}>
-                                <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationHours.toString()} onChangeText={onNotificationHoursChange} keyboardType="number-pad" />
+                            <View style={{ flex: 0.2, marginStart: "2%" }}>
+                                <View style={styles.formSmallTextInputView}>
+                                    <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationHours.toString()} onChangeText={onNotificationHoursChange} keyboardType="number-pad" />
+                                </View>
+                            </View>
+                            <View style={{ flex: 0.05, marginStart: "2%" }}>
+                                <Text style={styles.formTextLabelSmallText}>h</Text>
+                            </View>
+
+                            <View style={{ flex: 0.2, marginStart: "2%" }}>
+                                <View style={styles.formSmallTextInputView}>
+                                    <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationMins.toString()} onChangeText={onNotificationMinsChange} keyboardType="number-pad" />
+                                </View>
+                            </View>
+                            <View style={{ flex: 0.3, marginStart: "2%" }}>
+                                <Text style={styles.formTextLabelSmallText}>m  before</Text>
                             </View>
                         </View>
-                        <View style={{ flex: 0.05, marginStart: "2%" }}>
-                            <Text style={styles.formTextLabelSmallText}>h</Text>
-                        </View>
-
-                        <View style={{ flex: 0.2, marginStart: "2%" }}>
-                            <View style={styles.formSmallTextInputView}>
-                                <TextInput style={styles.formSmallTextInput} placeholderTextColor={Colours.inactive} placeholder="0" value={notificationMins.toString()} onChangeText={onNotificationMinsChange} keyboardType="number-pad" />
-                            </View>
-                        </View>
-                        <View style={{ flex: 0.3, marginStart: "2%" }}>
-                            <Text style={styles.formTextLabelSmallText}>m  before</Text>
-                        </View>
-                    </View> 
                     }
-                    { notification && pastNotificationError && notificationIsInThePast() &&
+                    {notification && pastNotificationError && notificationIsInThePast() &&
                         <View style={styles.formRowView}>
                             <Text style={styles.formErrorText}>Notification cannot be scheduled in the past</Text>
                         </View>
                     }
                     <View style={[styles.formRowView, { marginBottom: 0 }]}>
-                        { eventToEdit ?
+                        {eventToEdit ?
                             <>
                                 <View style={{ flex: 0.5, marginEnd: "2%" }}><FormButton onPress={onCancelEdit} text="Cancel" backgroundColor={Colours.danger} /></View>
                                 <View style={{ flex: 0.5, marginStart: "2%" }}><FormButton onPress={onEditEvent} text="Save" /></View>
                             </>
                             :
-                             <FormButton onPress={onAddEvent} text="Add" />
+                            <FormButton onPress={onAddEvent} text="Add" />
                         }
-                    </View> 
+                    </View>
                 </View>
-                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={today} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
+                <DatePicker modal key={0} mode="date" open={openDatePicker} date={date} minimumDate={new Date()} onConfirm={onConfirmDatePick} onCancel={() => setOpenDatePicker(false)} />
                 <DatePicker modal key={1} mode="time" open={openTimePicker} date={date} onConfirm={onConfirmTimePick} onCancel={() => setOpenTimePicker(false)} />
             </View>
         </Modal>

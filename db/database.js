@@ -99,8 +99,8 @@ export const updateEvent = async (event) => {
     return new Promise((resolve, reject) => {
         db.transaction((tx) => {
             tx.executeSql(
-                `UPDATE Event SET description=?, date=?, notification=? WHERE id = ?`,
-                [event.description, event.date, event.notification, event.id],
+                `UPDATE Event SET description=?, date=?, notification=?, notificationMinOffset=? WHERE id = ?`,
+                [event.description, event.date, event.notification, event.notificationMinOffset, event.id],
                 (tx, res) => resolve(res.rowsAffected),
                 (tx, err) => reject(err)
             );
