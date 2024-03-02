@@ -116,7 +116,7 @@ function AddEventModal({ show, setShow, onAdd, eventToEdit, setEventToEdit, onEd
             const newEvent = {
                 id: eventToEdit.id,
                 description: description,
-                date: date.toISOString(),
+                date: date,
                 notification: notification,
                 notificationMinOffset: notificationMinOffset
             };

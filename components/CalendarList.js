@@ -93,10 +93,6 @@ function CalendarList() {
                 const targetId = event.id;
                 let targetGroup = newGroupList.find(elem => elem.title === targetTitle);
                 targetGroup.data = targetGroup.data.filter(e => e.id !== targetId);
-                // If there are no more user events for this date, remove it
-                if (targetGroup.title !== getDateString(today) && targetGroup.data.filter(e => e.type === "user").length === 0) {
-                    newGroupList = newGroupList.filter(elem => elem.title !== targetTitle);
-                }
                 return newGroupList;
             });
             // Update database
@@ -139,7 +135,7 @@ function CalendarList() {
                     }
                     newGroupList.push(group);
                 }
-                const eventToPush = {...newEvent, type: "user" };
+                const eventToPush = { ...newEvent, type: "user" };
                 eventToPush.id = -idFlag;
                 group.data.push(eventToPush);
                 return newGroupList;
@@ -153,6 +149,7 @@ function CalendarList() {
                     oldEvent.id = eventId;
                     return newGroupList;
                 });
+                setLoading(false);
             });
             // Schedule notification if necessary
             if (newEvent.notification) {
@@ -162,9 +159,9 @@ function CalendarList() {
             ToastAndroid.showWithGravity("Event added", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
+            setLoading(false);
             ToastAndroid.showWithGravity(e, ToastAndroid.LONG, ToastAndroid.TOP);
         }
-        setLoading(false);
     }
 
     const onEventView = (event) => {
@@ -175,14 +172,43 @@ function CalendarList() {
     const onEdit = async (event) => {
         setLoading(true);
         try {
-            await updateEvent(event);
+            // Update state
+            setGroupedEventList(oldGroupList => {
+                const newGroupList = [...oldGroupList];
+                const originalTitle = getDateString(new Date(eventToEdit.date));
+                const newTitle = getDateString(event.date);
+                const originalGroup = newGroupList.find(elem => elem.title === originalTitle);
+                const originalEvent = originalGroup.find(e => e.id === event.id);
+                const newEvent = {...event};
+                newEvent.date = newEvent.date.toISOString();
+                if (newTitle === originalTitle) {
+                    // Event is in the same group, just reassign values
+                    Object.assign(originalEvent, newEvent);
+                } else {
+                    // Event is in another group
+                    // First, remove event from old group
+                    originalGroup.data = originalGroup.data.filter(e => e.id === event.id);
+                    // Then, add the event to the new one
+                    const newGroup = { title: newTitle, data: [] };
+                    newGroupList.push(newGroup);
+                    // Check for holidays
+                    if (event.date > holidayLimit) {
+                        const holidays = getHolidays(event.date, settingsContext.location);
+                        if (holidays) {
+                            newGroup.data.push({ description: holidays, date: today.toISOString(), type: "holiday" });
+                        }
+                    }
+                    newGroup.data.push(newEvent);
+                }
+                return newGroupList;
+            });
+            // Reset event to edit
+            setEventToEdit(null);
+            // Update on db
+            updateEvent(event);
             // Schedule notification if necessary
             if (event.notification)
                 scheduleEventNotification(event, settingsContext.timeFormat);
-            // Reset event to edit
-            setEventToEdit(null);
-            // Reload content
-            loadContent();
             ToastAndroid.showWithGravity("Event edited", ToastAndroid.SHORT, ToastAndroid.TOP);
         } catch (e) {
             console.log(e);
