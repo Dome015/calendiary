@@ -5,7 +5,7 @@ import { Colours } from "../common";
 function EmptyEntry() {
     return (
         <View style={styles.emptyView}>
-            <Text style={styles.emptyText}>No events for today.</Text>
+            <Text style={styles.emptyText}>No events for today</Text>
         </View>
     )
 }

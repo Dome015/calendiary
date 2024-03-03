@@ -102,7 +102,7 @@ export const updateEvent = async (event) => {
                 `UPDATE Event SET description=?, date=?, notification=?, notificationMinOffset=? WHERE id = ?`,
                 [event.description, event.date, event.notification, event.notificationMinOffset, event.id],
                 (tx, res) => resolve(res.rowsAffected),
-                (tx, err) => reject(err)
+                (tx, err) => {console.log(err);reject(err)}
             );
         });
     });

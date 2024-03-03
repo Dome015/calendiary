@@ -22,15 +22,6 @@ const styles = StyleSheet.create({
         marginLeft: "3%",
         marginRight: "3%",
         padding: "4%",
-        elevation: 20,
-        shadowColor: "black",
-        shadowOpacity: 1,
-        shadowRadius: 4,
-        elevation: 5,
-        shadowOffset: {
-            width: 0,
-            height: 0,
-        },
     },
     entryText: {
         color: Colours.inactive,

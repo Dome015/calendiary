@@ -178,7 +178,7 @@ function CalendarList() {
                 const originalTitle = getDateString(new Date(eventToEdit.date));
                 const newTitle = getDateString(event.date);
                 const originalGroup = newGroupList.find(elem => elem.title === originalTitle);
-                const originalEvent = originalGroup.find(e => e.id === event.id);
+                const originalEvent = originalGroup.data.find(e => e.id === event.id);
                 const newEvent = {...event};
                 newEvent.date = newEvent.date.toISOString();
                 if (newTitle === originalTitle) {
@@ -205,7 +205,9 @@ function CalendarList() {
             // Reset event to edit
             setEventToEdit(null);
             // Update on db
-            updateEvent(event);
+            const updatedEvent = {...event};
+            updatedEvent.date = updatedEvent.date.toISOString();
+            updateEvent(updatedEvent);
             // Schedule notification if necessary
             if (event.notification)
                 scheduleEventNotification(event, settingsContext.timeFormat);
@@ -249,7 +251,7 @@ function CalendarList() {
 
 const styles = StyleSheet.create({
     listView: {
-
+        paddingTop: "1%"
     }
 });
 
